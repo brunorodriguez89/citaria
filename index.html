@@ -613,7 +613,7 @@ function fillResumen() {
   const days = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
 
   state.nombre       = document.getElementById('inputNombre').value.trim();
-  state.tel          = document.getElementById('inputTel').value.trim();
+  state.tel          = normalizarTel(document.getElementById('inputTel').value.trim());
   state.email        = document.getElementById('inputEmail').value.trim();
   state.destinatario = document.getElementById('inputDestinatario').value.trim();
 
@@ -676,6 +676,14 @@ function selectPago(metodo) {
     }
     detalle.classList.add('visible');
   }
+}
+
+// ── UTILS ──
+function normalizarTel(tel) {
+  const limpio = tel.replace(/[\s\-\(\)\.]/g, '');
+  if (limpio.startsWith('+'))   return limpio;
+  if (limpio.startsWith('598')) return '+' + limpio;
+  return '+598' + limpio;
 }
 
 async function confirmar() {

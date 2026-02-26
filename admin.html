@@ -304,18 +304,38 @@ body{font-family:'Jost',sans-serif;background:#f7f2ed;color:var(--dark);min-heig
 .btn-ghost:hover{border-color:var(--brown);color:var(--brown);}
 @media(max-width:480px){.modal-grid{grid-template-columns:1fr;}}
 @media(max-width:768px){
-  .sidebar{width:100%;height:auto;position:relative;flex-direction:row;flex-wrap:wrap;}
-  .sidebar-nav{display:flex;padding:0;overflow-x:auto;}
-  .nav-item{padding:12px 16px;border-left:none;border-bottom:3px solid transparent;white-space:nowrap;}
-  .nav-item.active{border-bottom-color:var(--brown);border-left:none;}
-  .sidebar-footer{display:none;}
-  .layout{flex-direction:column;}
-  .main{margin-left:0;padding:20px;}
-  .stats-row{grid-template-columns:repeat(2,1fr);}
-  .reserva-item{grid-template-columns:1fr auto;grid-template-rows:auto auto auto;}
-  .agenda-grid{grid-template-columns:repeat(3,1fr);}
-  .bloqueo-form{grid-template-columns:1fr 1fr;}
-  .servicio-item{grid-template-columns:1fr 90px 90px auto;}
+  /* ── BOTTOM NAV ── */
+  .sidebar { display:none; }
+  .layout  { flex-direction:column; }
+  .main    { margin-left:0; padding:16px 16px 80px; }
+
+  .bottom-nav {
+    display:flex !important;
+    position:fixed; bottom:0; left:0; right:0; z-index:100;
+    background:var(--white); border-top:1px solid var(--border);
+    padding:6px 0 calc(6px + env(safe-area-inset-bottom));
+    justify-content:space-around;
+  }
+  .bottom-nav-item {
+    display:flex; flex-direction:column; align-items:center; gap:3px;
+    padding:4px 8px; cursor:pointer; border-radius:10px;
+    transition:0.2s; color:var(--muted); font-size:9px;
+    letter-spacing:0.5px; text-transform:uppercase; min-width:44px;
+  }
+  .bottom-nav-item .bnav-icon { font-size:20px; line-height:1; }
+  .bottom-nav-item.active     { color:var(--brown); }
+  .bottom-nav-item.active .bnav-icon { transform:scale(1.15); }
+
+  /* ── RESTO MOBILE ── */
+  .stats-row   { grid-template-columns:repeat(2,1fr); }
+  .reserva-item{ grid-template-columns:1fr auto; grid-template-rows:auto auto auto; }
+  .agenda-grid { grid-template-columns:repeat(3,1fr); }
+  .bloqueo-form{ grid-template-columns:1fr 1fr; }
+  .servicio-item{ grid-template-columns:1fr 90px 90px auto; }
+  .sidebar-brand .name { font-size:18px; }
+}
+@media(min-width:769px){
+  .bottom-nav { display:none !important; }
 }
 </style>
 </head>
@@ -624,8 +644,46 @@ body{font-family:'Jost',sans-serif;background:#f7f2ed;color:var(--dark);min-heig
         </div>
 
       </div><!-- /page-configuracion -->
+  </div><!-- /main -->
+
+  <!-- BOTTOM NAV (mobile) -->
+  <nav class="bottom-nav" style="display:none">
+    <div class="bottom-nav-item active" id="bnav-dashboard" onclick="showPage('dashboard')">
+      <span class="bnav-icon">◈</span>Resumen
+    </div>
+    <div class="bottom-nav-item" id="bnav-reservas" onclick="showPage('reservas')">
+      <span class="bnav-icon">◷</span>Reservas
+    </div>
+    <div class="bottom-nav-item" id="bnav-agenda" onclick="showPage('agenda')">
+      <span class="bnav-icon">▦</span>Agenda
+    </div>
+    <div class="bottom-nav-item" id="bnav-servicios" onclick="showPage('servicios')">
+      <span class="bnav-icon">✦</span>Servicios
+    </div>
+    <div class="bottom-nav-item" id="bnav-mas" onclick="toggleMasMenu()">
+      <span class="bnav-icon">⋯</span>Más
+    </div>
+  </nav>
+
+  <!-- MÁS MENU (mobile) -->
+  <div id="masMenu" style="display:none;position:fixed;bottom:70px;left:0;right:0;z-index:99;background:var(--white);border-top:1px solid var(--border);padding:12px 0;box-shadow:0 -4px 20px rgba(0,0,0,0.08)">
+    <div class="bottom-nav-item" style="flex-direction:row;gap:14px;padding:14px 24px;min-width:unset;font-size:13px;letter-spacing:0" onclick="showPage('horarios');toggleMasMenu()">
+      <span style="font-size:18px">🕐</span> Horarios
+    </div>
+    <div class="bottom-nav-item" style="flex-direction:row;gap:14px;padding:14px 24px;min-width:unset;font-size:13px;letter-spacing:0" onclick="showPage('bloqueos');toggleMasMenu()">
+      <span style="font-size:18px">⊘</span> Bloqueos
+    </div>
+    <div class="bottom-nav-item" style="flex-direction:row;gap:14px;padding:14px 24px;min-width:unset;font-size:13px;letter-spacing:0" onclick="showPage('configuracion');toggleMasMenu()">
+      <span style="font-size:18px">⚙</span> Configuración
+    </div>
+    <div style="border-top:1px solid var(--border);margin:8px 0"></div>
+    <div class="bottom-nav-item" style="flex-direction:row;gap:14px;padding:14px 24px;min-width:unset;font-size:13px;letter-spacing:0;color:#b05a5a" onclick="logout()">
+      <span style="font-size:18px">↩</span> Cerrar sesión
+    </div>
   </div>
-</div>
+
+</div><!-- /layout -->
+</div><!-- /appScreen -->
 
 <!-- MODAL NUEVA RESERVA MANUAL -->
 <div class="modal-overlay" id="modalReserva" onclick="closeModalOutside(event)">
@@ -682,8 +740,9 @@ const sb = createClient(
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4dXJnYXhudG9yeWZwZXVlbHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NDI2MTcsImV4cCI6MjA4NzUxODYxN30.uZ53JR4s_kF_dxgGbFkdxPJP_Nj1t3kUqHNilIhkQwU'
 );
 
-const SLUG = 'gardenia';
+const SLUG = null; // ya no se usa — el negocio se detecta por el usuario
 let negocioId = null;
+let negocioSlug = null;
 let allReservas = [];
 let agendaWeekStart = null;
 
@@ -719,18 +778,37 @@ sb.auth.getSession().then(({ data }) => {
 // ── INIT ──
 async function initApp() {
   document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('appScreen').style.display = 'block';
+  document.getElementById('appScreen').style.display   = 'block';
 
-  const { data: neg } = await sb.from('negocios').select('id').eq('slug', SLUG).single();
-  negocioId = neg.id;
+  // Detectar negocio según el usuario logueado
+  const { data: { user } } = await sb.auth.getUser();
+
+  const { data: vinculo, error } = await sb
+    .from('negocio_usuarios')
+    .select('negocio_id, negocios(id, nombre, slug)')
+    .eq('user_id', user.id)
+    .single();
+
+  if (error || !vinculo) {
+    document.getElementById('appScreen').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.querySelector('.login-error').textContent = 'Tu usuario no tiene un negocio asignado.';
+    document.querySelector('.login-error').style.display = 'block';
+    return;
+  }
+
+  negocioId   = vinculo.negocio_id;
+  negocioSlug = vinculo.negocios.slug;
+
+  // Actualizar nombre en sidebar
+  document.querySelector('.sidebar-brand .name').textContent = vinculo.negocios.nombre || 'Panel';
 
   const today = new Date();
-  const days = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+  const days   = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
   const months = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   document.getElementById('dashFecha').textContent =
     `${days[today.getDay()]} ${today.getDate()} de ${months[today.getMonth()]} de ${today.getFullYear()}`;
 
-  // Semana actual para agenda
   const mon = new Date(today);
   mon.setDate(today.getDate() - ((today.getDay() + 6) % 7));
   mon.setHours(0,0,0,0);
@@ -1291,18 +1369,33 @@ async function agregarServicio() {
 // ── NAVIGATION ──
 function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
-  event.currentTarget.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.getAttribute('onclick')?.includes("'" + name + "'")) n.classList.add('active');
+  });
 
-  // Al entrar a reservas poner hoy por defecto si no hay filtro
+  // Sincronizar bottom nav
+  const bnavPages = ['dashboard','reservas','agenda','servicios'];
+  document.querySelectorAll('.bottom-nav-item').forEach(b => b.classList.remove('active'));
+  const bnavEl = document.getElementById('bnav-' + (bnavPages.includes(name) ? name : 'mas'));
+  if (bnavEl) bnavEl.classList.add('active');
+
+  // Cerrar menú "Más" si está abierto
+  document.getElementById('masMenu').style.display = 'none';
+
   if (name === 'reservas') {
     const filtroFecha = document.getElementById('filtroFecha');
-    if (!filtroFecha.value) {
-      filtroFecha.value = new Date().toISOString().split('T')[0];
-    }
+    if (!filtroFecha.value) filtroFecha.value = new Date().toISOString().split('T')[0];
     renderReservas();
   }
+  if (name === 'agenda')   renderAgenda();
+  if (name === 'horarios') renderHorarios();
+}
+
+function toggleMasMenu() {
+  const menu = document.getElementById('masMenu');
+  menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
 }
 
 // ── MODAL RESERVA MANUAL ──
