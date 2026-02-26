@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gardenia — Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --brown:  rgb(122,107,95);
+  --cream:  #F5EBE0;
+  --white:  #ffffff;
+  --dark:   #3a3028;
+  --muted:  #a89880;
+  --border: rgba(122,107,95,0.18);
+  --shadow: rgba(122,107,95,0.1);
+  --green:  #6a9e7f;
+  --red:    #b05a5a;
+  --yellow: #c49a3c;
+  --sidebar-w: 220px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Jost',sans-serif;background:#f7f2ed;color:var(--dark);min-height:100vh;}
+
+/* ── LOGIN ── */
+#loginScreen{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#3a3028,#5a4a3a);
+}
+.login-box{
+  background:var(--white);border-radius:20px;padding:48px 40px;
+  width:100%;max-width:380px;text-align:center;
+  box-shadow:0 30px 80px rgba(0,0,0,0.2);
+}
+.login-brand{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:300;letter-spacing:6px;text-transform:uppercase;color:var(--brown);margin-bottom:6px;}
+.login-sub{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:36px;}
+.login-box input{
+  width:100%;padding:13px 16px;border:1.5px solid var(--border);border-radius:10px;
+  font-family:'Jost',sans-serif;font-size:15px;color:var(--dark);background:#faf8f6;
+  outline:none;transition:border-color 0.2s;margin-bottom:14px;
+}
+.login-box input:focus{border-color:var(--brown);}
+.login-error{color:var(--red);font-size:13px;margin-bottom:12px;display:none;}
+
+/* ── LAYOUT ── */
+#appScreen{display:none;min-height:100vh;}
+.layout{display:flex;min-height:100vh;}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:var(--sidebar-w);background:var(--dark);
+  display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;
+}
+.sidebar-brand{
+  padding:28px 24px 20px;border-bottom:1px solid rgba(255,255,255,0.08);
+}
+.sidebar-brand .name{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;letter-spacing:4px;color:var(--cream);text-transform:uppercase;}
+.sidebar-brand .role{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:3px;}
+.sidebar-nav{flex:1;padding:20px 0;}
+.nav-item{
+  display:flex;align-items:center;gap:12px;padding:13px 24px;
+  font-size:13px;letter-spacing:0.5px;color:rgba(245,235,224,0.6);
+  cursor:pointer;transition:0.2s ease;border-left:3px solid transparent;
+}
+.nav-item:hover{color:var(--cream);background:rgba(255,255,255,0.05);}
+.nav-item.active{color:var(--cream);border-left-color:var(--brown);background:rgba(255,255,255,0.07);}
+.nav-item .icon{font-size:16px;width:20px;text-align:center;}
+.sidebar-footer{padding:20px 24px;border-top:1px solid rgba(255,255,255,0.08);}
+.btn-logout{
+  width:100%;padding:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);
+  border-radius:8px;color:rgba(245,235,224,0.6);font-family:'Jost',sans-serif;font-size:12px;
+  letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:0.2s;
+}
+.btn-logout:hover{background:rgba(255,255,255,0.12);color:var(--cream);}
+
+/* ── MAIN ── */
+.main{margin-left:var(--sidebar-w);flex:1;padding:32px;min-height:100vh;}
+.page{display:none;}
+.page.active{display:block;animation:fadeIn 0.3s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+.page-title{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:300;color:var(--dark);margin-bottom:4px;}
+.page-sub{font-size:13px;color:var(--muted);margin-bottom:28px;}
+
+/* ── STATS ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px;}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:20px 24px;}
+.stat-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.stat-value{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:300;color:var(--dark);}
+.stat-value.pending{color:var(--yellow);}
+.stat-value.confirmed{color:var(--green);}
+
+/* ── CARDS ── */
+.card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:20px;}
+.card-title{font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:18px;font-weight:500;}
+
+/* ── RESERVAS TABLE ── */
+.reserva-item{
+  display:grid;grid-template-columns:90px 1fr 120px 110px auto;
+  align-items:center;gap:16px;padding:14px 0;
+  border-bottom:1px solid rgba(122,107,95,0.08);
+}
+.reserva-item:last-child{border-bottom:none;}
+.res-fecha{font-size:13px;color:var(--muted);}
+.res-info .nombre{font-size:15px;font-weight:500;color:var(--dark);}
+.res-info .servicio{font-size:12px;color:var(--muted);margin-top:2px;}
+.res-hora{font-size:14px;font-weight:500;color:var(--dark);}
+.res-tel{font-size:12px;color:var(--muted);}
+.badge{
+  display:inline-flex;align-items:center;padding:4px 10px;border-radius:20px;
+  font-size:11px;font-weight:500;letter-spacing:0.5px;
+}
+.badge.pendiente{background:#fef3dd;color:var(--yellow);}
+.badge.confirmada{background:#e8f4ee;color:var(--green);}
+.badge.cancelada{background:#fce8e8;color:var(--red);}
+.res-actions{display:flex;gap:8px;}
+.btn-sm{
+  padding:6px 12px;border-radius:7px;font-family:'Jost',sans-serif;font-size:11px;
+  font-weight:500;cursor:pointer;border:none;transition:0.2s;letter-spacing:0.5px;
+}
+.btn-confirm{background:#e8f4ee;color:var(--green);}
+.btn-confirm:hover{background:var(--green);color:white;}
+.btn-cancel{background:#fce8e8;color:var(--red);}
+.btn-cancel:hover{background:var(--red);color:white;}
+.empty-state{text-align:center;padding:40px;color:var(--muted);font-size:14px;}
+
+/* ── AGENDA ── */
+.agenda-nav{display:flex;align-items:center;gap:16px;margin-bottom:20px;}
+.agenda-date{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;}
+.btn-nav{
+  background:var(--white);border:1px solid var(--border);border-radius:8px;
+  width:34px;height:34px;cursor:pointer;font-size:16px;color:var(--brown);
+  display:flex;align-items:center;justify-content:center;transition:0.2s;
+}
+.btn-nav:hover{background:var(--brown);color:white;}
+.agenda-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;}
+.agenda-day{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px 10px;min-height:120px;}
+.agenda-day-name{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);text-align:center;margin-bottom:6px;}
+.agenda-day-num{font-size:20px;font-family:'Cormorant Garamond',serif;text-align:center;margin-bottom:10px;color:var(--dark);}
+.agenda-day.today .agenda-day-num{background:var(--brown);color:white;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;}
+.agenda-event{background:var(--cream);border-left:3px solid var(--brown);border-radius:4px;padding:4px 6px;margin-bottom:4px;font-size:10px;line-height:1.3;cursor:pointer;}
+.agenda-event.confirmada{border-left-color:var(--green);background:#e8f4ee;}
+.agenda-event.cancelada{border-left-color:#ccc;background:#f5f5f5;opacity:0.6;}
+.agenda-event .ev-hora{font-weight:600;color:var(--dark);}
+.agenda-event .ev-nombre{color:var(--muted);}
+
+/* ── BLOQUEOS ── */
+.bloqueo-form{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:12px;align-items:end;margin-bottom:24px;}
+.form-field label{display:block;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.form-field input, .form-field select{
+  width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;
+  font-family:'Jost',sans-serif;font-size:14px;color:var(--dark);background:var(--white);outline:none;
+}
+.form-field input:focus,.form-field select:focus{border-color:var(--brown);}
+.bloqueo-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px;background:#faf8f6;border-radius:8px;margin-bottom:8px;
+}
+.bloqueo-item .info{font-size:14px;color:var(--dark);}
+.bloqueo-item .motivo{font-size:12px;color:var(--muted);margin-top:2px;}
+.btn-del{background:none;border:none;color:#ccc;cursor:pointer;font-size:18px;transition:0.2s;padding:4px;}
+.btn-del:hover{color:var(--red);}
+
+/* ── SERVICIOS ── */
+.servicio-item{
+  display:grid;grid-template-columns:1fr 120px 120px auto;
+  align-items:center;gap:16px;padding:14px 0;
+  border-bottom:1px solid rgba(122,107,95,0.08);
+}
+.servicio-item:last-child{border-bottom:none;}
+.serv-nombre{font-size:15px;color:var(--dark);}
+.serv-input{
+  padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;
+  font-family:'Jost',sans-serif;font-size:14px;color:var(--dark);
+  background:var(--white);outline:none;width:100%;transition:border-color 0.2s;
+}
+.serv-input:focus{border-color:var(--brown);}
+
+/* ── BUTTONS ── */
+.btn-primary{
+  padding:11px 24px;background:var(--brown);color:white;border:none;border-radius:9px;
+  font-family:'Jost',sans-serif;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;
+  cursor:pointer;transition:0.25s;font-weight:500;
+}
+.btn-primary:hover{background:var(--dark);}
+.btn-primary:disabled{background:#c8bbb0;cursor:not-allowed;}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:24px;right:24px;background:var(--dark);color:white;
+  padding:12px 20px;border-radius:10px;font-size:13px;opacity:0;
+  transition:all 0.3s ease;z-index:999;pointer-events:none;
+}
+.toast.show{opacity:1;}
+.toast.ok{background:var(--green);}
+.toast.err{background:var(--red);}
+
+/* ── TABLA RESERVAS ── */
+.reserva-header {
+  display:grid;
+  grid-template-columns: 80px 1fr 1fr 70px 130px 100px 160px;
+  gap:12px;padding:10px 20px;
+  font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);
+  background:var(--cream);border:1px solid var(--border);border-radius:12px 12px 0 0;
+  margin-bottom:0;
+}
+.reserva-item {
+  display:grid;
+  grid-template-columns: 80px 1fr 1fr 70px 130px 100px 160px;
+  align-items:center;gap:12px;
+  padding:14px 20px;
+  border-bottom:1px solid rgba(122,107,95,0.08);
+}
+.reserva-item:last-child{border-bottom:none;}
+.res-fecha{font-size:13px;color:var(--muted);white-space:nowrap;}
+.res-nombre{font-size:14px;font-weight:500;color:var(--dark);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.res-servicio{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.res-hora{font-size:14px;font-weight:500;color:var(--dark);white-space:nowrap;}
+.res-tel{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.res-actions{display:flex;gap:6px;flex-wrap:wrap;}
+
+@media(max-width:900px){
+  .reserva-header{display:none;}
+  .reserva-item{grid-template-columns:1fr auto;grid-template-rows:auto auto auto;gap:4px 12px;}
+}
+
+/* ── HORARIOS ── */
+.horarios-grid { display: flex; flex-direction: column; gap: 0; }
+.horario-dia {
+  display: grid;
+  grid-template-columns: 110px 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(122,107,95,0.08);
+}
+.horario-dia:last-child { border-bottom: none; }
+.dia-label { font-size: 13px; font-weight: 500; color: var(--dark); }
+.dia-label.inactivo { color: var(--muted); }
+.horario-inputs { display: flex; align-items: center; gap: 10px; }
+.horario-inputs input[type="time"] {
+  padding: 8px 12px; border: 1.5px solid var(--border); border-radius: 8px;
+  font-family: 'Jost', sans-serif; font-size: 14px; color: var(--dark);
+  background: #faf8f6; outline: none; transition: border-color 0.2s;
+  width: 120px;
+}
+.horario-inputs input[type="time"]:focus { border-color: var(--brown); }
+.horario-inputs input[type="time"]:disabled { background: #f0ebe5; color: #c8bbb0; }
+.horario-sep { font-size: 12px; color: var(--muted); }
+
+/* ── NOTIFICACIONES ── */
+.notif-item{display:flex;align-items:center;justify-content:space-between;padding:18px 0;border-bottom:1px solid rgba(122,107,95,0.08);gap:20px;}
+.notif-nombre{font-size:15px;font-weight:500;color:var(--dark);margin-bottom:4px;}
+.notif-desc{font-size:12px;color:var(--muted);line-height:1.4;}
+.toggle{position:relative;display:inline-block;width:46px;height:26px;flex-shrink:0;}
+.toggle input{opacity:0;width:0;height:0;}
+.toggle-slider{position:absolute;cursor:pointer;inset:0;background:#ddd;border-radius:26px;transition:0.3s;}
+.toggle-slider::before{content:"";position:absolute;width:20px;height:20px;left:3px;bottom:3px;background:white;border-radius:50%;transition:0.3s;}
+.toggle input:checked + .toggle-slider{background:var(--green);}
+.toggle input:checked + .toggle-slider::before{transform:translateX(20px);}
+.preview-msg{}
+.preview-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.preview-bubble{background:#e8f5e9;border-radius:0 12px 12px 12px;padding:14px 16px;font-size:13px;line-height:1.6;color:#2d2d2d;max-width:360px;border:1px solid rgba(0,0,0,0.06);}
+
+.msg-editor {
+  width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;
+  font-family:'Jost',sans-serif;font-size:13px;color:var(--dark);background:#faf8f6;
+  outline:none;transition:border-color 0.2s;resize:vertical;line-height:1.6;
+}
+.msg-editor:focus{border-color:var(--brown);}
+.servicio-item {
+  display:grid;grid-template-columns:1fr 110px 110px 60px auto;
+  align-items:center;gap:12px;padding:12px 0;
+  border-bottom:1px solid rgba(122,107,95,0.08);
+}
+.servicio-item:last-child{border-bottom:none;}
+
+/* ── MODAL ── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;
+  display:none;align-items:center;justify-content:center;padding:20px;
+}
+.modal-overlay.open{display:flex;animation:fadeIn 0.2s ease;}
+.modal{
+  background:var(--white);border-radius:18px;padding:36px;width:100%;max-width:500px;
+  box-shadow:0 30px 80px rgba(0,0,0,0.2);position:relative;
+}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;margin-bottom:4px;}
+.modal-sub{font-size:13px;color:var(--muted);margin-bottom:24px;}
+.modal-close{
+  position:absolute;top:20px;right:20px;background:none;border:none;
+  font-size:22px;cursor:pointer;color:var(--muted);line-height:1;
+}
+.modal-close:hover{color:var(--dark);}
+.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.modal-grid .form-field.full{grid-column:1/-1;}
+.modal-footer{display:flex;gap:12px;margin-top:24px;}
+.btn-ghost{
+  flex:1;padding:11px;background:none;border:1.5px solid var(--border);border-radius:9px;
+  font-family:'Jost',sans-serif;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;
+  cursor:pointer;color:var(--muted);transition:0.2s;
+}
+.btn-ghost:hover{border-color:var(--brown);color:var(--brown);}
+@media(max-width:480px){.modal-grid{grid-template-columns:1fr;}}
+@media(max-width:768px){
+  .sidebar{width:100%;height:auto;position:relative;flex-direction:row;flex-wrap:wrap;}
+  .sidebar-nav{display:flex;padding:0;overflow-x:auto;}
+  .nav-item{padding:12px 16px;border-left:none;border-bottom:3px solid transparent;white-space:nowrap;}
+  .nav-item.active{border-bottom-color:var(--brown);border-left:none;}
+  .sidebar-footer{display:none;}
+  .layout{flex-direction:column;}
+  .main{margin-left:0;padding:20px;}
+  .stats-row{grid-template-columns:repeat(2,1fr);}
+  .reserva-item{grid-template-columns:1fr auto;grid-template-rows:auto auto auto;}
+  .agenda-grid{grid-template-columns:repeat(3,1fr);}
+  .bloqueo-form{grid-template-columns:1fr 1fr;}
+  .servicio-item{grid-template-columns:1fr 90px 90px auto;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-brand">Gardenia</div>
+    <div class="login-sub">Panel de administración</div>
+    <input type="email" id="loginEmail" placeholder="Email" onkeydown="if(event.key==='Enter')login()">
+    <input type="password" id="loginPass" placeholder="Contraseña" onkeydown="if(event.key==='Enter')login()">
+    <div class="login-error" id="loginError">Email o contraseña incorrectos</div>
+    <button class="btn-primary" style="width:100%" onclick="login()" id="btnLogin">Ingresar</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appScreen">
+  <div class="layout">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-brand">
+        <div class="name">Gardenia</div>
+        <div class="role">Panel del negocio</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item active" onclick="showPage('dashboard')"><span class="icon">◈</span> Resumen</div>
+        <div class="nav-item" onclick="showPage('reservas')"><span class="icon">◷</span> Reservas</div>
+        <div class="nav-item" onclick="showPage('agenda')"><span class="icon">▦</span> Agenda</div>
+        <div class="nav-item" onclick="showPage('bloqueos')"><span class="icon">⊘</span> Bloqueos</div>
+        <div class="nav-item" onclick="showPage('horarios')"><span class="icon">🕐</span> Horarios</div>
+        <div class="nav-item" onclick="showPage('servicios')"><span class="icon">✦</span> Servicios</div>
+        <div class="nav-item" onclick="showPage('configuracion')"><span class="icon">⚙</span> Configuración</div>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="btn-logout" onclick="logout()">Cerrar sesión</button>
+      </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+
+      <!-- DASHBOARD -->
+      <div class="page active" id="page-dashboard">
+        <div class="page-title">Resumen</div>
+        <div class="page-sub" id="dashFecha"></div>
+        <div class="stats-row">
+          <div class="stat-card"><div class="stat-label">Pendientes</div><div class="stat-value pending" id="statPendientes">—</div></div>
+          <div class="stat-card"><div class="stat-label">Hoy confirmadas</div><div class="stat-value confirmed" id="statHoy">—</div></div>
+          <div class="stat-card"><div class="stat-label">Esta semana</div><div class="stat-value" id="statSemana">—</div></div>
+          <div class="stat-card"><div class="stat-label">Desde hoy</div><div class="stat-value" id="statTotal">—</div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Reservas pendientes de confirmación</div>
+          <div id="dashPendientes"><div class="empty-state">Cargando...</div></div>
+        </div>
+        <div class="card" style="margin-top:20px">
+          <div class="card-title">Próximas reservas confirmadas</div>
+          <div id="dashProximas"><div class="empty-state">Cargando...</div></div>
+        </div>
+      </div>
+
+      <!-- RESERVAS -->
+      <div class="page" id="page-reservas">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-wrap:wrap;gap:12px;">
+          <div class="page-title">Todas las reservas</div>
+          <button class="btn-primary" onclick="openModalReserva()">+ Nueva reserva</button>
+        </div>
+        <div class="page-sub">Confirmá, cancelá o revisá el historial completo</div>
+
+        <!-- Filtros -->
+        <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;">
+          <button class="btn-sm btn-confirm" style="padding:8px 16px;font-size:12px" onclick="filterReservas('todas')">Todas</button>
+          <button class="btn-sm" style="background:#fef3dd;color:var(--yellow);padding:8px 16px;font-size:12px" onclick="filterReservas('pendiente')">Pendientes</button>
+          <button class="btn-sm btn-confirm" onclick="filterReservas('confirmada')">Confirmadas</button>
+          <button class="btn-sm btn-cancel" onclick="filterReservas('cancelada')">Canceladas</button>
+          <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
+            <label style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted)">Día:</label>
+            <input type="date" id="filtroFecha" class="serv-input" style="width:160px;padding:7px 10px" onchange="filterReservas()">
+            <button class="btn-sm" style="background:#f0ebe5;color:var(--muted);padding:7px 12px" onclick="clearFiltroFecha()">✕</button>
+          </div>
+        </div>
+
+        <!-- Header tabla -->
+        <div class="reserva-header">
+          <span>Fecha</span>
+          <span>Cliente</span>
+          <span>Servicio</span>
+          <span>Hora</span>
+          <span>Contacto</span>
+          <span>Estado</span>
+          <span>Acciones</span>
+        </div>
+
+        <div class="card" style="padding:0">
+          <div id="reservasList"><div class="empty-state">Cargando...</div></div>
+        </div>
+      </div>
+
+      <!-- AGENDA -->
+      <div class="page" id="page-agenda">
+        <div class="page-title">Agenda semanal</div>
+        <div class="page-sub">Vista de la semana actual</div>
+        <div class="agenda-nav">
+          <button class="btn-nav" onclick="changeWeek(-1)">‹</button>
+          <div class="agenda-date" id="agendaLabel"></div>
+          <button class="btn-nav" onclick="changeWeek(1)">›</button>
+          <button class="btn-sm btn-confirm" onclick="goToday()" style="margin-left:8px">Hoy</button>
+        </div>
+        <div class="agenda-grid" id="agendaGrid"></div>
+      </div>
+
+      <!-- HORARIOS DE ATENCIÓN -->
+      <div class="page" id="page-horarios">
+        <div class="page-title">Horarios de atención</div>
+        <div class="page-sub">Definí en qué días y horarios recibís reservas</div>
+        <div class="card">
+          <div class="horarios-grid" id="horariosGrid">
+            <div class="empty-state">Cargando...</div>
+          </div>
+          <button class="btn-primary" style="margin-top:20px;width:auto;padding:10px 28px" onclick="guardarHorarios()">Guardar horarios</button>
+        </div>
+      </div>
+
+      <!-- BLOQUEOS -->
+      <div class="page" id="page-bloqueos">
+        <div class="page-title">Bloquear horarios</div>
+        <div class="page-sub">Bloqueá días o franjas horarias para que no reciban reservas</div>
+        <div class="card">
+          <div class="card-title">Nuevo bloqueo</div>
+          <div class="bloqueo-form">
+            <div class="form-field">
+              <label>Fecha</label>
+              <input type="date" id="blkFecha">
+            </div>
+            <div class="form-field">
+              <label>Hora (opcional)</label>
+              <input type="time" id="blkHora" placeholder="Dejar vacío = todo el día">
+            </div>
+            <div class="form-field">
+              <label>Motivo</label>
+              <input type="text" id="blkMotivo" placeholder="Ej: Turno personal">
+            </div>
+            <button class="btn-primary" onclick="agregarBloqueo()">Bloquear</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Bloqueos activos</div>
+          <div id="bloqueosList"><div class="empty-state">Sin bloqueos registrados</div></div>
+        </div>
+      </div>
+
+      <!-- SERVICIOS -->
+      <div class="page" id="page-servicios">
+        <div class="page-title">Servicios y precios</div>
+        <div class="page-sub">Editá, agregá o eliminá servicios. Los cambios se guardan al hacer click en Guardar.</div>
+        <div class="card">
+          <div style="display:grid;grid-template-columns:1fr 110px 110px 80px auto;gap:12px;padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:4px;">
+            <span style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)">Servicio</span>
+            <span style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)">Precio ($)</span>
+            <span style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)">Duración (min)</span>
+            <span style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)">Activo</span>
+            <span></span>
+          </div>
+          <div id="serviciosList"><div class="empty-state">Cargando...</div></div>
+          <!-- Nuevo servicio -->
+          <div style="border-top:1px solid var(--border);margin-top:16px;padding-top:16px;">
+            <div class="card-title">Agregar servicio</div>
+            <div style="display:grid;grid-template-columns:1fr 110px 110px auto;gap:12px;align-items:end;">
+              <div class="form-field">
+                <label>Nombre</label>
+                <input type="text" id="nuevoNombre" class="serv-input" placeholder="Ej: Limpieza facial">
+              </div>
+              <div class="form-field">
+                <label>Precio ($)</label>
+                <input type="number" id="nuevoPrecio" class="serv-input" placeholder="—" min="0">
+              </div>
+              <div class="form-field">
+                <label>Duración (min)</label>
+                <input type="number" id="nuevoDuracion" class="serv-input" placeholder="—" min="0">
+              </div>
+              <button class="btn-primary" onclick="agregarServicio()">Agregar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONFIGURACIÓN -->
+      <div class="page" id="page-configuracion">
+        <div class="page-title">Configuración</div>
+        <div class="page-sub">Personalizá el negocio, las reglas de reserva y los mensajes automáticos</div>
+
+        <!-- REGLAS -->
+        <div class="card">
+          <div class="card-title">Reglas de reserva</div>
+          <div class="notif-item">
+            <div class="notif-info">
+              <div class="notif-nombre">⏱ Anticipación mínima</div>
+              <div class="notif-desc">Horas mínimas de anticipación (0 = mismo día)</div>
+            </div>
+            <select id="cfgAnticipacion" class="serv-input" style="width:120px" onchange="guardarConfig()">
+              <option value="0">Mismo día</option>
+              <option value="2">2 horas</option>
+              <option value="4">4 horas</option>
+              <option value="8">8 horas</option>
+              <option value="24">24 horas</option>
+              <option value="48">48 horas</option>
+            </select>
+          </div>
+          <div class="notif-item">
+            <div class="notif-info">
+              <div class="notif-nombre">🕐 Intervalo entre slots</div>
+              <div class="notif-desc">Cada cuántos minutos mostrar horarios</div>
+            </div>
+            <select id="cfgIntervalo" class="serv-input" style="width:120px" onchange="guardarConfig()">
+              <option value="15">15 min</option>
+              <option value="30">30 min</option>
+              <option value="60">1 hora</option>
+            </select>
+          </div>
+          <div class="notif-item">
+            <div class="notif-info">
+              <div class="notif-nombre">🔒 Bloquear slots por duración</div>
+              <div class="notif-desc">Impide reservas superpuestas (recomendado para un solo empleado)</div>
+            </div>
+            <label class="toggle"><input type="checkbox" id="cfgBloquearDuracion" onchange="guardarConfig()"><span class="toggle-slider"></span></label>
+          </div>
+          <div class="notif-item" style="border-bottom:none">
+            <div class="notif-info">
+              <div class="notif-nombre">🧹 Pausa entre reservas</div>
+              <div class="notif-desc">Minutos de pausa después de cada turno</div>
+            </div>
+            <select id="cfgPausa" class="serv-input" style="width:120px" onchange="guardarConfig()">
+              <option value="0">Sin pausa</option>
+              <option value="10">10 min</option>
+              <option value="15">15 min</option>
+              <option value="20">20 min</option>
+              <option value="30">30 min</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- MENSAJES -->
+        <div class="card" style="margin-top:20px">
+          <div class="card-title">Mensajes automáticos de WhatsApp</div>
+          <div class="notif-desc" style="margin-bottom:16px">Variables disponibles: <code style="background:#f0ebe5;padding:2px 6px;border-radius:4px;font-size:12px">{nombre}</code> <code style="background:#f0ebe5;padding:2px 6px;border-radius:4px;font-size:12px">{servicio}</code> <code style="background:#f0ebe5;padding:2px 6px;border-radius:4px;font-size:12px">{fecha}</code> <code style="background:#f0ebe5;padding:2px 6px;border-radius:4px;font-size:12px">{hora}</code> <code style="background:#f0ebe5;padding:2px 6px;border-radius:4px;font-size:12px">{negocio}</code></div>
+
+          <div class="notif-item" style="flex-direction:column;align-items:flex-start;gap:8px">
+            <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
+              <div class="notif-nombre">✅ Confirmación</div>
+              <label class="toggle"><input type="checkbox" id="cfgConfirmacion" onchange="guardarConfig()"><span class="toggle-slider"></span></label>
+            </div>
+            <textarea id="msgConfirmacion" class="msg-editor" rows="4" placeholder="Mensaje de confirmación..."></textarea>
+          </div>
+
+          <div class="notif-item" style="flex-direction:column;align-items:flex-start;gap:8px">
+            <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
+              <div class="notif-nombre">❌ Cancelación</div>
+              <label class="toggle"><input type="checkbox" id="cfgCancelacion" onchange="guardarConfig()"><span class="toggle-slider"></span></label>
+            </div>
+            <textarea id="msgCancelacion" class="msg-editor" rows="3" placeholder="Mensaje de cancelación..."></textarea>
+          </div>
+
+          <div class="notif-item" style="flex-direction:column;align-items:flex-start;gap:8px;border-bottom:none">
+            <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
+              <div class="notif-nombre">⏰ Recordatorio 24hs</div>
+              <label class="toggle"><input type="checkbox" id="cfgRecordatorio" onchange="guardarConfig()"><span class="toggle-slider"></span></label>
+            </div>
+            <textarea id="msgRecordatorio" class="msg-editor" rows="3" placeholder="Mensaje de recordatorio..."></textarea>
+          </div>
+          <button class="btn-primary" style="margin-top:16px;width:auto;padding:10px 24px" onclick="guardarMensajes()">Guardar mensajes</button>
+        </div>
+
+        <!-- BRANDING -->
+        <div class="card" style="margin-top:20px">
+          <div class="card-title">Identidad del negocio</div>
+          <div class="notif-desc" style="margin-bottom:14px">Aparece en el encabezado del formulario de reservas que ven tus clientes</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+            <div class="form-field">
+              <label>Nombre del negocio</label>
+              <input type="text" id="cfgNombre" class="serv-input" placeholder="Ej: Gardenia">
+            </div>
+            <div class="form-field">
+              <label>Tagline</label>
+              <input type="text" id="cfgTagline" class="serv-input" placeholder="Ej: Cosmetología · Reservar turno">
+            </div>
+          </div>
+          <button class="btn-primary" style="margin-top:14px;width:auto;padding:10px 24px" onclick="guardarBranding()">Guardar identidad</button>
+        </div>
+
+        <!-- PAGOS -->
+        <div class="card" style="margin-top:20px">
+          <div class="card-title">Datos de pago para señas</div>
+          <div class="notif-desc" style="margin-bottom:16px">El cliente ve estos datos al elegir cómo abonar la seña antes de confirmar su turno</div>
+          <div class="form-field" style="margin-bottom:16px">
+            <label>Datos para transferencia bancaria</label>
+            <textarea id="cfgTransfDatos" class="msg-editor" rows="3" placeholder="Ej: Banco República · Caja de Ahorro · 123456789&#10;IBAN: UY12345&#10;Alias: gardenia.cobros"></textarea>
+          </div>
+          <div class="form-field" style="margin-bottom:16px">
+            <label>Link de cobro de MercadoPago</label>
+            <input type="url" id="cfgMPLink" class="serv-input" placeholder="https://mpago.la/...">
+          </div>
+          <button class="btn-primary" style="width:auto;padding:10px 24px" onclick="guardarPagos()">Guardar datos de pago</button>
+        </div>
+
+      </div><!-- /page-configuracion -->
+  </div>
+</div>
+
+<!-- MODAL NUEVA RESERVA MANUAL -->
+<div class="modal-overlay" id="modalReserva" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModalReserva()">×</button>
+    <div class="modal-title">Nueva reserva</div>
+    <div class="modal-sub">Registrá un turno reservado personalmente</div>
+    <div class="modal-grid">
+      <div class="form-field full">
+        <label>Nombre del cliente</label>
+        <input type="text" id="mnNombre" placeholder="Ej: Laura García">
+      </div>
+      <div class="form-field">
+        <label>Teléfono</label>
+        <input type="tel" id="mnTel" placeholder="099 000 000">
+      </div>
+      <div class="form-field">
+        <label>Email (opcional)</label>
+        <input type="email" id="mnEmail" placeholder="—">
+      </div>
+      <div class="form-field full">
+        <label>Servicio</label>
+        <select id="mnServicio" class="serv-input">
+          <option value="">Seleccioná un servicio...</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Fecha</label>
+        <input type="date" id="mnFecha">
+      </div>
+      <div class="form-field">
+        <label>Hora</label>
+        <input type="time" id="mnHora">
+      </div>
+      <div class="form-field full">
+        <label>Notas (opcional)</label>
+        <input type="text" id="mnNotas" placeholder="Ej: Paciente nueva, piel sensible">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModalReserva()">Cancelar</button>
+      <button class="btn-primary" style="flex:2" onclick="guardarReservaManual()">Guardar reserva</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── SUPABASE ──
+const { createClient } = supabase;
+const sb = createClient(
+  'https://zxurgaxntoryfpeuelqf.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4dXJnYXhudG9yeWZwZXVlbHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NDI2MTcsImV4cCI6MjA4NzUxODYxN30.uZ53JR4s_kF_dxgGbFkdxPJP_Nj1t3kUqHNilIhkQwU'
+);
+
+const SLUG = 'gardenia';
+let negocioId = null;
+let allReservas = [];
+let agendaWeekStart = null;
+
+// ── AUTH ──
+async function login() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPass').value;
+  const btn   = document.getElementById('btnLogin');
+  const err   = document.getElementById('loginError');
+
+  btn.disabled = true; btn.textContent = 'Ingresando...';
+  err.style.display = 'none';
+
+  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+
+  btn.disabled = false; btn.textContent = 'Ingresar';
+
+  if (error) { err.style.display = 'block'; return; }
+  initApp();
+}
+
+async function logout() {
+  await sb.auth.signOut();
+  document.getElementById('appScreen').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+}
+
+// Verificar sesión al cargar
+sb.auth.getSession().then(({ data }) => {
+  if (data.session) initApp();
+});
+
+// ── INIT ──
+async function initApp() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appScreen').style.display = 'block';
+
+  const { data: neg } = await sb.from('negocios').select('id').eq('slug', SLUG).single();
+  negocioId = neg.id;
+
+  const today = new Date();
+  const days = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+  const months = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  document.getElementById('dashFecha').textContent =
+    `${days[today.getDay()]} ${today.getDate()} de ${months[today.getMonth()]} de ${today.getFullYear()}`;
+
+  // Semana actual para agenda
+  const mon = new Date(today);
+  mon.setDate(today.getDate() - ((today.getDay() + 6) % 7));
+  mon.setHours(0,0,0,0);
+  agendaWeekStart = mon;
+
+  await loadAll();
+}
+
+async function loadAll() {
+  await Promise.all([
+    loadReservas(),
+    loadBloqueos(),
+    loadServicios(),
+    loadConfig(),
+    loadHorarios(),
+  ]);
+  renderAgenda();
+}
+
+// ── RESERVAS ──
+async function loadReservas() {
+  const { data } = await sb
+    .from('reservas')
+    .select('*')
+    .eq('negocio_id', negocioId)
+    .order('fecha', { ascending: true })
+    .order('hora', { ascending: true });
+
+  allReservas = data || [];
+  renderDashboard();
+  renderReservas('todas');
+}
+
+function renderDashboard() {
+  const today = new Date().toISOString().split('T')[0];
+  const weekEnd = new Date(); weekEnd.setDate(weekEnd.getDate() + 7);
+  const weekEndStr = weekEnd.toISOString().split('T')[0];
+
+  const pendientes = allReservas.filter(r => r.estado === 'pendiente');
+  const hoyConf    = allReservas.filter(r => r.fecha === today && r.estado === 'confirmada');
+  const semana     = allReservas.filter(r => r.fecha >= today && r.fecha <= weekEndStr && r.estado === 'confirmada');
+  const desdeHoy   = allReservas.filter(r => r.fecha >= today);
+
+  document.getElementById('statPendientes').textContent = pendientes.length;
+  document.getElementById('statHoy').textContent        = hoyConf.length;
+  document.getElementById('statSemana').textContent     = semana.length;
+  document.getElementById('statTotal').textContent      = desdeHoy.length;
+
+  const container = document.getElementById('dashPendientes');
+  container.innerHTML = pendientes.length
+    ? pendientes.map(r => reservaHTML(r)).join('')
+    : '<div class="empty-state">🎉 Sin reservas pendientes</div>';
+
+  const proximas = allReservas
+    .filter(r => r.fecha >= today && r.estado === 'confirmada')
+    .slice(0, 5);
+  const proxContainer = document.getElementById('dashProximas');
+  proxContainer.innerHTML = proximas.length
+    ? proximas.map(r => reservaHTML(r)).join('')
+    : '<div class="empty-state">Sin próximas reservas</div>';
+}
+
+function filterReservas(estado) {
+  // Si se llama con un estado, actualiza el filtro activo
+  if (estado) window._filtroEstado = estado === 'todas' ? null : estado;
+  renderReservas();
+}
+
+function clearFiltroFecha() {
+  document.getElementById('filtroFecha').value = '';
+  renderReservas();
+}
+
+function renderReservas() {
+  const filtroEstado = window._filtroEstado || null;
+  const filtroFecha  = document.getElementById('filtroFecha')?.value || null;
+
+  let lista = [...allReservas];
+  if (filtroEstado) lista = lista.filter(r => r.estado === filtroEstado);
+  if (filtroFecha)  lista = lista.filter(r => r.fecha === filtroFecha);
+
+  const container = document.getElementById('reservasList');
+  if (!lista.length) {
+    container.innerHTML = '<div class="empty-state">No hay reservas en esta categoría</div>';
+    return;
+  }
+  container.innerHTML = lista.map(r => reservaHTML(r)).join('');
+}
+
+function reservaHTML(r) {
+  const fecha = new Date(r.fecha ? r.fecha + 'T12:00:00' : Date.now());
+  const months = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  const fechaStr = r.fecha ? `${fecha.getDate()} ${months[fecha.getMonth()]}` : '—';
+  const hora = r.hora ? r.hora.slice(0,5) : r.tipo === 'gift_card' ? '🎁' : '—';
+
+  // Badges especiales
+  let extraBadge = '';
+  if (r.tipo === 'gift_card') {
+    extraBadge = `<span style="font-size:10px;background:#f0ebe5;color:var(--brown);padding:2px 7px;border-radius:10px;margin-left:6px">Gift Card</span>`;
+  } else if (r.pago_estado === 'pendiente_pago') {
+    extraBadge = `<span style="font-size:10px;background:#fef3dd;color:#c49a3c;padding:2px 7px;border-radius:10px;margin-left:6px">💳 Seña pendiente</span>`;
+  } else if (r.pago_estado === 'pagado') {
+    extraBadge = `<span style="font-size:10px;background:#e8f5e9;color:var(--green);padding:2px 7px;border-radius:10px;margin-left:6px">💳 Seña pagada</span>`;
+  }
+
+  const acciones = r.estado === 'pendiente'
+    ? `<div class="res-actions">
+        <button class="btn-sm btn-confirm" onclick="updateReserva('${r.id}','confirmada')">Confirmar</button>
+        <button class="btn-sm btn-cancel"  onclick="updateReserva('${r.id}','cancelada')">Cancelar</button>
+        ${r.pago_estado === 'pendiente_pago' ? `<button class="btn-sm" style="background:#e8f5e9;color:var(--green)" onclick="marcarPagado('${r.id}')">✓ Seña recibida</button>` : ''}
+       </div>`
+    : `<div class="res-actions">
+        <button class="btn-sm" style="background:#f0ebe5;color:var(--muted)" onclick="updateReserva('${r.id}','pendiente')">Reabrir</button>
+       </div>`;
+
+  return `<div class="reserva-item">
+    <div class="res-fecha">${fechaStr}</div>
+    <div class="res-nombre" title="${r.cliente_nombre}">${r.cliente_nombre}${extraBadge}</div>
+    <div class="res-servicio" title="${r.servicio_nombre}">${r.servicio_nombre}</div>
+    <div class="res-hora">${hora} hs</div>
+    <div class="res-tel" title="${r.cliente_tel}">${r.cliente_tel}</div>
+    <span class="badge ${r.estado}">${r.estado}</span>
+    ${acciones}
+  </div>`;
+}
+
+async function marcarPagado(id) {
+  await sb.from('reservas').update({ pago_estado: 'pagado' }).eq('id', id);
+  showToast('✓ Seña marcada como recibida', 'ok');
+  await loadReservas();
+}
+
+async function updateReserva(id, estado) {
+  const { error } = await sb.from('reservas').update({ estado }).eq('id', id);
+  if (error) { showToast('Error al actualizar', 'err'); return; }
+
+  // Buscar configuración y la reserva para enviar notificación
+  const reserva = allReservas.find(r => r.id === id);
+  const { data: cfg } = await sb
+    .from('notif_config').select('*').eq('negocio_id', negocioId).single();
+
+  const debeNotificar =
+    (estado === 'confirmada' && cfg?.notif_confirmacion) ||
+    (estado === 'cancelada'  && cfg?.notif_cancelacion);
+
+  if (debeNotificar && reserva) {
+    try {
+      // Buscar duración del servicio para el link de calendario
+      let duracion = 60;
+      try {
+        if (reserva.servicio_id) {
+          const { data: srv } = await sb.from('servicios').select('duracion').eq('id', reserva.servicio_id).single();
+          duracion = srv?.duracion || 60;
+        }
+      } catch (_) { /* si falla usa 60min por defecto */ }
+
+      await fetch(
+        'https://zxurgaxntoryfpeuelqf.supabase.co/functions/v1/notify-cliente',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4dXJnYXhudG9yeWZwZXVlbHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NDI2MTcsImV4cCI6MjA4NzUxODYxN30.uZ53JR4s_kF_dxgGbFkdxPJP_Nj1t3kUqHNilIhkQwU'
+          },
+          body: JSON.stringify({ tipo: estado, reserva: { ...reserva, duracion } })
+        }
+      );
+      showToast(estado === 'confirmada' ? '✓ Confirmada · WhatsApp enviado 📱' : 'Cancelada · WhatsApp enviado 📱', 'ok');
+    } catch {
+      showToast(estado === 'confirmada' ? '✓ Confirmada (sin WhatsApp)' : 'Cancelada (sin WhatsApp)', 'ok');
+    }
+  } else {
+    showToast(estado === 'confirmada' ? '✓ Reserva confirmada' : estado === 'cancelada' ? 'Reserva cancelada' : 'Reserva reabierta', 'ok');
+  }
+
+  await loadReservas();
+  renderAgenda();
+}
+
+// ── CONFIGURACIÓN ──
+async function loadConfig() {
+  const { data } = await sb.from('notif_config').select('*').eq('negocio_id', negocioId).single();
+  if (data) {
+    document.getElementById('cfgConfirmacion').checked     = data.notif_confirmacion ?? true;
+    document.getElementById('cfgCancelacion').checked      = data.notif_cancelacion  ?? true;
+    document.getElementById('cfgRecordatorio').checked     = data.recordatorio_24h   ?? true;
+    document.getElementById('cfgAnticipacion').value       = data.anticipacion_minima    ?? 0;
+    document.getElementById('cfgIntervalo').value          = data.intervalo_slots        ?? 30;
+    document.getElementById('cfgBloquearDuracion').checked = data.bloquear_por_duracion !== false;
+    document.getElementById('cfgPausa').value              = data.tiempo_entre_reservas  ?? 0;
+
+    // Mensajes — si la columna no existe aún, usa defaults
+    document.getElementById('msgConfirmacion').value = data.msg_confirmacion ||
+      '🌸 *{negocio}*\n\n¡Hola {nombre}! Tu turno fue *confirmado* ✅\n\n📋 *Servicio:* {servicio}\n📅 *Fecha:* {fecha}\n🕐 *Hora:* {hora} hs\n\n¡Te esperamos! 💆‍♀️';
+    document.getElementById('msgCancelacion').value  = data.msg_cancelacion ||
+      '🌸 *{negocio}*\n\nHola {nombre}, tu turno del *{fecha} a las {hora} hs* fue *cancelado* ❌\n\nComunicate con nosotras para reprogramarlo. 🙏';
+    document.getElementById('msgRecordatorio').value = data.msg_recordatorio ||
+      '🌸 *{negocio}*\n\n¡Hola {nombre}! Te recordamos que mañana tenés turno 📅\n\n📋 *Servicio:* {servicio}\n🕐 *Hora:* {hora} hs\n\n¡Hasta mañana! 💆‍♀️';
+
+    if (document.getElementById('cfgTransfDatos'))
+      document.getElementById('cfgTransfDatos').value = data.pago_transferencia_datos || '';
+    if (document.getElementById('cfgMPLink'))
+      document.getElementById('cfgMPLink').value = data.pago_mp_link || '';
+  }
+
+  // Branding — columna tagline puede no existir aún
+  const { data: neg } = await sb.from('negocios').select('nombre, tagline').eq('id', negocioId).single();
+  if (neg) {
+    document.getElementById('cfgNombre').value  = neg.nombre  || '';
+    document.getElementById('cfgTagline').value = neg.tagline || '';
+  }
+}
+
+async function guardarPagos() {
+  const pago_transferencia_datos = document.getElementById('cfgTransfDatos').value.trim();
+  const pago_mp_link             = document.getElementById('cfgMPLink').value.trim();
+  const { error } = await sb.from('notif_config').update({
+    pago_transferencia_datos, pago_mp_link
+  }).eq('negocio_id', negocioId);
+  if (error) { showToast('Error al guardar datos de pago', 'err'); return; }
+  showToast('✓ Datos de pago guardados', 'ok');
+}
+
+async function guardarConfig() {
+  const notif_confirmacion    = document.getElementById('cfgConfirmacion').checked;
+  const notif_cancelacion     = document.getElementById('cfgCancelacion').checked;
+  const recordatorio_24h      = document.getElementById('cfgRecordatorio').checked;
+  const anticipacion_minima   = Number(document.getElementById('cfgAnticipacion').value);
+  const intervalo_slots       = Number(document.getElementById('cfgIntervalo').value);
+  const bloquear_por_duracion = document.getElementById('cfgBloquearDuracion').checked;
+  const tiempo_entre_reservas = Number(document.getElementById('cfgPausa').value);
+
+  await sb.from('notif_config').update({
+    notif_confirmacion, notif_cancelacion, recordatorio_24h,
+    anticipacion_minima, intervalo_slots, bloquear_por_duracion, tiempo_entre_reservas
+  }).eq('negocio_id', negocioId);
+
+  showToast('Configuración guardada', 'ok');
+}
+
+async function guardarMensajes() {
+  const msg_confirmacion = document.getElementById('msgConfirmacion').value.trim();
+  const msg_cancelacion  = document.getElementById('msgCancelacion').value.trim();
+  const msg_recordatorio = document.getElementById('msgRecordatorio').value.trim();
+
+  const { error } = await sb.from('notif_config').update({
+    msg_confirmacion, msg_cancelacion, msg_recordatorio
+  }).eq('negocio_id', negocioId);
+
+  if (error) { showToast('Error al guardar mensajes', 'err'); return; }
+  showToast('✓ Mensajes guardados', 'ok');
+}
+
+async function guardarBranding() {
+  const nombre  = document.getElementById('cfgNombre').value.trim();
+  const tagline = document.getElementById('cfgTagline').value.trim();
+  if (!nombre) { showToast('Ingresá el nombre del negocio', 'err'); return; }
+
+  const { error } = await sb.from('negocios').update({ nombre, tagline }).eq('id', negocioId);
+  if (error) { showToast('Error al guardar', 'err'); return; }
+
+  // Actualizar sidebar
+  document.querySelector('.sidebar-brand .name').textContent = nombre;
+  showToast('✓ Identidad guardada', 'ok');
+}
+
+// ── AGENDA ──
+function changeWeek(dir) {
+  agendaWeekStart = new Date(agendaWeekStart);
+  agendaWeekStart.setDate(agendaWeekStart.getDate() + dir * 7);
+  renderAgenda();
+}
+
+function goToday() {
+  const today = new Date();
+  const mon = new Date(today);
+  mon.setDate(today.getDate() - ((today.getDay() + 6) % 7));
+  mon.setHours(0,0,0,0);
+  agendaWeekStart = mon;
+  renderAgenda();
+}
+
+function renderAgenda() {
+  const months = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const dayNames = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+  const weekEnd = new Date(agendaWeekStart);
+  weekEnd.setDate(weekEnd.getDate() + 6);
+
+  document.getElementById('agendaLabel').textContent =
+    `${agendaWeekStart.getDate()} ${months[agendaWeekStart.getMonth()]} — ${weekEnd.getDate()} ${months[weekEnd.getMonth()]}`;
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  const grid = document.getElementById('agendaGrid');
+  grid.innerHTML = '';
+
+  for (let i = 0; i < 7; i++) {
+    const day = new Date(agendaWeekStart);
+    day.setDate(day.getDate() + i);
+    const dayStr = day.toISOString().split('T')[0];
+    const isToday = day.getTime() === today.getTime();
+
+    const dayReservas = allReservas.filter(r => r.fecha === dayStr);
+
+    const eventos = dayReservas.map(r =>
+      `<div class="agenda-event ${r.estado}" title="${r.cliente_nombre} · ${r.servicio_nombre}">
+        <div class="ev-hora">${r.hora.slice(0,5)}</div>
+        <div class="ev-nombre">${r.cliente_nombre.split(' ')[0]}</div>
+       </div>`
+    ).join('');
+
+    grid.innerHTML += `
+      <div class="agenda-day ${isToday ? 'today' : ''}">
+        <div class="agenda-day-name">${dayNames[i]}</div>
+        <div class="agenda-day-num">${day.getDate()}</div>
+        ${eventos || ''}
+      </div>`;
+  }
+}
+
+// ── BLOQUEOS ──
+// ── HORARIOS ──
+const DIAS = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+let horariosData = []; // cache de lo que hay en DB
+
+async function loadHorarios() {
+  const { data } = await sb
+    .from('horarios')
+    .select('*')
+    .eq('negocio_id', negocioId)
+    .order('dia_semana');
+
+  // Construir mapa dia_semana → fila
+  horariosData = data || [];
+  renderHorarios();
+}
+
+function renderHorarios() {
+  const container = document.getElementById('horariosGrid');
+
+  // Crear un mapa para acceso rápido
+  const map = {};
+  horariosData.forEach(h => { map[h.dia_semana] = h; });
+
+  container.innerHTML = DIAS.map((nombre, i) => {
+    const h       = map[i];
+    const activo  = !!h?.activo;
+    const inicio  = h?.hora_inicio?.slice(0,5) || '09:00';
+    const fin     = h?.hora_fin?.slice(0,5)    || '18:00';
+
+    return `<div class="horario-dia" id="hdia-${i}">
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+        <input type="checkbox" id="hact-${i}" ${activo ? 'checked' : ''}
+          onchange="toggleDia(${i})"
+          style="width:18px;height:18px;accent-color:var(--brown);cursor:pointer">
+        <span class="dia-label ${activo ? '' : 'inactivo'}" id="hlabel-${i}">${nombre}</span>
+      </label>
+      <div class="horario-inputs" id="hinputs-${i}" style="${activo ? '' : 'opacity:0.3;pointer-events:none'}">
+        <input type="time" id="hinicio-${i}" value="${inicio}">
+        <span class="horario-sep">a</span>
+        <input type="time" id="hfin-${i}" value="${fin}">
+      </div>
+      <div></div>
+    </div>`;
+  }).join('');
+}
+
+function toggleDia(i) {
+  const activo  = document.getElementById(`hact-${i}`).checked;
+  const inputs  = document.getElementById(`hinputs-${i}`);
+  const label   = document.getElementById(`hlabel-${i}`);
+  inputs.style.opacity       = activo ? '1' : '0.3';
+  inputs.style.pointerEvents = activo ? 'auto' : 'none';
+  label.className = `dia-label ${activo ? '' : 'inactivo'}`;
+}
+
+async function guardarHorarios() {
+  const map = {};
+  horariosData.forEach(h => { map[h.dia_semana] = h; });
+
+  const upserts = [];
+  for (let i = 0; i < 7; i++) {
+    const activo = document.getElementById(`hact-${i}`).checked;
+    const inicio = document.getElementById(`hinicio-${i}`).value + ':00';
+    const fin    = document.getElementById(`hfin-${i}`).value    + ':00';
+
+    if (map[i]) {
+      // Ya existe → update
+      upserts.push(
+        sb.from('horarios').update({ activo, hora_inicio: inicio, hora_fin: fin }).eq('id', map[i].id)
+      );
+    } else {
+      // No existe → insert
+      upserts.push(
+        sb.from('horarios').insert({ negocio_id: negocioId, dia_semana: i, hora_inicio: inicio, hora_fin: fin, activo })
+      );
+    }
+  }
+
+  const results = await Promise.all(upserts);
+  const hasError = results.some(r => r.error);
+  if (hasError) { showToast('Error al guardar horarios', 'err'); return; }
+
+  showToast('✓ Horarios guardados', 'ok');
+  loadHorarios(); // recarga para actualizar el cache
+}
+
+async function loadBloqueos() {
+  const { data } = await sb
+    .from('bloqueos')
+    .select('*')
+    .eq('negocio_id', negocioId)
+    .order('fecha', { ascending: true });
+
+  const container = document.getElementById('bloqueosList');
+  if (!data || !data.length) {
+    container.innerHTML = '<div class="empty-state">Sin bloqueos registrados</div>';
+    return;
+  }
+  container.innerHTML = data.map(b => {
+    const fecha = new Date(b.fecha + 'T12:00:00');
+    const months = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+    const fechaStr = `${fecha.getDate()} ${months[fecha.getMonth()]} ${fecha.getFullYear()}`;
+    const horaStr = b.hora ? ` · ${b.hora.slice(0,5)} hs` : ' · Todo el día';
+    return `<div class="bloqueo-item">
+      <div>
+        <div class="info">📅 ${fechaStr}${horaStr}</div>
+        ${b.motivo ? `<div class="motivo">${b.motivo}</div>` : ''}
+      </div>
+      <button class="btn-del" onclick="eliminarBloqueo('${b.id}')">×</button>
+    </div>`;
+  }).join('');
+}
+
+async function agregarBloqueo() {
+  const fecha  = document.getElementById('blkFecha').value;
+  const hora   = document.getElementById('blkHora').value || null;
+  const motivo = document.getElementById('blkMotivo').value.trim() || null;
+
+  if (!fecha) { showToast('Seleccioná una fecha', 'err'); return; }
+
+  const { error } = await sb.from('bloqueos').insert({
+    negocio_id: negocioId, fecha, hora, motivo
+  });
+  if (error) { showToast('Error al guardar', 'err'); return; }
+
+  document.getElementById('blkFecha').value = '';
+  document.getElementById('blkHora').value  = '';
+  document.getElementById('blkMotivo').value = '';
+  showToast('Bloqueo guardado', 'ok');
+  loadBloqueos();
+}
+
+async function eliminarBloqueo(id) {
+  await sb.from('bloqueos').delete().eq('id', id);
+  showToast('Bloqueo eliminado', 'ok');
+  loadBloqueos();
+}
+
+// ── SERVICIOS ──
+async function loadServicios() {
+  const { data } = await sb
+    .from('servicios').select('*').eq('negocio_id', negocioId).order('nombre');
+
+  const container = document.getElementById('serviciosList');
+  container.innerHTML = (data || []).map(s => `
+    <div class="servicio-item" id="sitem-${s.id}">
+      <div class="serv-nombre">${s.nombre}</div>
+      <input class="serv-input" type="number" placeholder="—" value="${s.precio ?? ''}" id="precio-${s.id}" min="0">
+      <input class="serv-input" type="number" placeholder="—" value="${s.duracion ?? ''}" id="dur-${s.id}" min="0">
+      <label class="toggle" title="${s.activo ? 'Activo' : 'Inactivo'}">
+        <input type="checkbox" ${s.activo ? 'checked' : ''} onchange="toggleServicio('${s.id}',this.checked)">
+        <span class="toggle-slider"></span>
+      </label>
+      <div style="display:flex;gap:6px">
+        <button class="btn-sm btn-confirm" onclick="guardarServicio('${s.id}','${s.nombre}')">Guardar</button>
+        <button class="btn-sm btn-cancel"  onclick="eliminarServicio('${s.id}','${s.nombre}')">×</button>
+      </div>
+    </div>
+    <div style="padding:0 0 12px 0;margin-bottom:8px;border-bottom:1px solid rgba(122,107,95,0.08);display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);cursor:pointer">
+        <input type="checkbox" id="sena-${s.id}" ${s.requiere_sena ? 'checked' : ''} onchange="toggleSena('${s.id}',this.checked)" style="width:16px;height:16px;accent-color:var(--brown)">
+        Requiere seña
+      </label>
+      <div style="display:flex;align-items:center;gap:6px" id="senaAmountRow-${s.id}" style="${s.requiere_sena ? '' : 'display:none'}">
+        <span style="font-size:12px;color:var(--muted)">Monto $</span>
+        <input class="serv-input" type="number" id="sena-monto-${s.id}" value="${s.monto_sena ?? 0}" min="0" style="width:100px" placeholder="0">
+        <button class="btn-sm btn-confirm" onclick="guardarSena('${s.id}')">Guardar seña</button>
+      </div>
+    </div>`).join('');
+
+  // Mostrar/ocultar campo de monto según estado inicial
+  (data||[]).forEach(s => {
+    const row = document.getElementById(`senaAmountRow-${s.id}`);
+    if (row) row.style.display = s.requiere_sena ? 'flex' : 'none';
+  });
+}
+
+async function guardarServicio(id, nombre) {
+  const precio   = document.getElementById('precio-' + id).value;
+  const duracion = document.getElementById('dur-' + id).value;
+  const { error } = await sb.from('servicios').update({
+    precio:   precio   ? Number(precio)   : null,
+    duracion: duracion ? Number(duracion) : null,
+  }).eq('id', id);
+  if (error) { showToast('Error al guardar', 'err'); return; }
+  showToast(`✓ ${nombre} actualizado`, 'ok');
+}
+
+async function toggleSena(id, activo) {
+  const row = document.getElementById(`senaAmountRow-${id}`);
+  if (row) row.style.display = activo ? 'flex' : 'none';
+  await sb.from('servicios').update({ requiere_sena: activo }).eq('id', id);
+}
+
+async function guardarSena(id) {
+  const monto = Number(document.getElementById(`sena-monto-${id}`).value) || 0;
+  const { error } = await sb.from('servicios').update({
+    requiere_sena: true,
+    monto_sena:    monto
+  }).eq('id', id);
+  if (error) { showToast('Error al guardar seña', 'err'); return; }
+  showToast('✓ Seña configurada', 'ok');
+}
+
+async function toggleServicio(id, activo) {
+  await sb.from('servicios').update({ activo }).eq('id', id);
+  showToast(activo ? 'Servicio activado' : 'Servicio desactivado', 'ok');
+}
+
+async function eliminarServicio(id, nombre) {
+  if (!confirm(`¿Eliminar "${nombre}"? Esta acción no se puede deshacer.`)) return;
+  const { error } = await sb.from('servicios').delete().eq('id', id);
+  if (error) { showToast('Error al eliminar', 'err'); return; }
+  showToast(`${nombre} eliminado`, 'ok');
+  loadServicios();
+}
+
+async function agregarServicio() {
+  const nombre   = document.getElementById('nuevoNombre').value.trim();
+  const precio   = document.getElementById('nuevoPrecio').value;
+  const duracion = document.getElementById('nuevoDuracion').value;
+  if (!nombre) { showToast('Ingresá el nombre del servicio', 'err'); return; }
+  const { error } = await sb.from('servicios').insert({
+    negocio_id: negocioId,
+    nombre,
+    precio:   precio   ? Number(precio)   : null,
+    duracion: duracion ? Number(duracion) : null,
+    activo: true
+  });
+  if (error) { showToast('Error al agregar', 'err'); return; }
+  document.getElementById('nuevoNombre').value   = '';
+  document.getElementById('nuevoPrecio').value   = '';
+  document.getElementById('nuevoDuracion').value = '';
+  showToast(`✓ ${nombre} agregado`, 'ok');
+  loadServicios();
+}
+
+// ── NAVIGATION ──
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+
+  // Al entrar a reservas poner hoy por defecto si no hay filtro
+  if (name === 'reservas') {
+    const filtroFecha = document.getElementById('filtroFecha');
+    if (!filtroFecha.value) {
+      filtroFecha.value = new Date().toISOString().split('T')[0];
+    }
+    renderReservas();
+  }
+}
+
+// ── MODAL RESERVA MANUAL ──
+async function openModalReserva() {
+  // Cargar servicios en el select
+  const { data } = await sb
+    .from('servicios').select('id,nombre').eq('negocio_id', negocioId).eq('activo', true).order('nombre');
+  const sel = document.getElementById('mnServicio');
+  sel.innerHTML = '<option value="">Seleccioná un servicio...</option>' +
+    (data || []).map(s => `<option value="${s.id}" data-nombre="${s.nombre}">${s.nombre}</option>`).join('');
+
+  // Fecha de hoy por defecto
+  document.getElementById('mnFecha').value = new Date().toISOString().split('T')[0];
+
+  document.getElementById('modalReserva').classList.add('open');
+}
+
+function closeModalReserva() {
+  document.getElementById('modalReserva').classList.remove('open');
+  ['mnNombre','mnTel','mnEmail','mnNotas'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('mnServicio').selectedIndex = 0;
+  document.getElementById('mnHora').value = '';
+}
+
+function closeModalOutside(e) {
+  if (e.target.id === 'modalReserva') closeModalReserva();
+}
+
+async function guardarReservaManual() {
+  const nombre  = document.getElementById('mnNombre').value.trim();
+  const tel     = document.getElementById('mnTel').value.trim();
+  const email   = document.getElementById('mnEmail').value.trim() || '—';
+  const sel     = document.getElementById('mnServicio');
+  const servId  = sel.value;
+  const servNom = sel.selectedOptions[0]?.dataset.nombre || '—';
+  const fecha   = document.getElementById('mnFecha').value;
+  const hora    = document.getElementById('mnHora').value;
+  const notas   = document.getElementById('mnNotas').value.trim() || null;
+
+  if (!nombre || !tel || !fecha || !hora) {
+    showToast('Completá nombre, teléfono, fecha y hora', 'err'); return;
+  }
+
+  const { error } = await sb.from('reservas').insert({
+    negocio_id:      negocioId,
+    servicio_id:     servId || null,
+    servicio_nombre: servNom,
+    fecha, hora:     hora + ':00',
+    cliente_nombre:  nombre,
+    cliente_tel:     tel,
+    cliente_email:   email,
+    estado:          'confirmada',  // las manuales van directo como confirmadas
+    notas
+  });
+
+  if (error) { showToast('Error al guardar', 'err'); return; }
+
+  showToast('✓ Reserva guardada y confirmada', 'ok');
+  closeModalReserva();
+  await loadReservas();
+  renderAgenda();
+}
+
+// ── TOAST ──
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (type ? ' ' + type : '');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+</script>
+</body>
+</html>

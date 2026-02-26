@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gardenia — Reservar turno</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --brown:  rgb(122, 107, 95);
+    --cream:  #F5EBE0;
+    --white:  #ffffff;
+    --dark:   #3a3028;
+    --muted:  #a89880;
+    --border: rgba(122,107,95,0.2);
+    --shadow: rgba(122,107,95,0.12);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Jost', sans-serif; background: var(--cream); color: var(--dark); min-height: 100vh; }
+
+  header { background: var(--white); border-bottom: 1px solid var(--border); padding: 20px 24px; text-align: center; }
+  header .brand { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 300; letter-spacing: 6px; text-transform: uppercase; color: var(--brown); }
+  header .tagline { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-top: 4px; font-weight: 300; }
+
+  .app { max-width: 780px; margin: 0 auto; padding: 40px 20px 60px; }
+
+  /* STEPS */
+  .steps { display: flex; align-items: center; justify-content: center; margin-bottom: 40px; }
+  .step { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .step-dot { width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid var(--border); background: var(--white); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; color: var(--muted); transition: all 0.3s ease; z-index: 1; }
+  .step.active .step-dot { background: var(--brown); border-color: var(--brown); color: white; }
+  .step.done .step-dot { background: var(--cream); border-color: var(--brown); color: var(--brown); }
+  .step-label { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+  .step.active .step-label { color: var(--brown); }
+  .step-line { width: 60px; height: 1px; background: var(--border); margin-bottom: 18px; }
+
+  .section-title { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 300; color: var(--dark); margin-bottom: 6px; }
+  .section-sub { font-size: 13px; color: var(--muted); margin-bottom: 28px; font-weight: 300; }
+
+  .screen { display: none; }
+  .screen.active { display: block; animation: fadeIn 0.35s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* SERVICES */
+  .services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+  .service-card { background: var(--white); border: 1.5px solid var(--border); border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.25s ease; position: relative; overflow: hidden; }
+  .service-card::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--brown); transform: scaleY(0); transition: transform 0.25s ease; transform-origin: bottom; }
+  .service-card:hover { border-color: var(--brown); box-shadow: 0 6px 24px var(--shadow); transform: translateY(-2px); }
+  .service-card:hover::before, .service-card.selected::before { transform: scaleY(1); }
+  .service-card.selected { border-color: var(--brown); background: #fdf7f2; box-shadow: 0 6px 24px var(--shadow); }
+  .service-name { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 400; color: var(--dark); margin-bottom: 8px; line-height: 1.3; }
+  .service-meta { display: flex; gap: 12px; align-items: center; }
+  .service-price { font-size: 14px; font-weight: 500; color: var(--brown); }
+  .service-duration { font-size: 12px; color: var(--muted); }
+  .service-duration::before { content: '· '; color: var(--border); }
+
+  /* LOADING */
+  .loading { text-align: center; padding: 40px; color: var(--muted); font-size: 14px; }
+  .loading::after { content: ''; display: inline-block; width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--brown); border-radius: 50%; animation: spin 0.7s linear infinite; margin-left: 10px; vertical-align: middle; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* CALENDAR */
+  .calendar-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .cal-nav { background: none; border: 1px solid var(--border); border-radius: 8px; width: 36px; height: 36px; cursor: pointer; font-size: 16px; color: var(--brown); transition: 0.2s ease; display: flex; align-items: center; justify-content: center; }
+  .cal-nav:hover { background: var(--brown); color: white; }
+  .cal-month { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 300; color: var(--dark); letter-spacing: 1px; }
+  .calendar-grid { background: var(--white); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+  .cal-days-header { display: grid; grid-template-columns: repeat(7, 1fr); background: var(--cream); border-bottom: 1px solid var(--border); }
+  .cal-day-name { text-align: center; padding: 10px 0; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+  .cal-days { display: grid; grid-template-columns: repeat(7, 1fr); }
+  .cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; transition: 0.2s ease; color: var(--dark); border: 0.5px solid rgba(122,107,95,0.06); }
+  .cal-day:hover:not(.disabled):not(.empty) { background: var(--cream); color: var(--brown); }
+  .cal-day.today { font-weight: 500; color: var(--brown); }
+  .cal-day.selected { background: var(--brown); color: white; border-radius: 50%; font-weight: 500; }
+  .cal-day.disabled { color: #d4c8be; cursor: not-allowed; background: none; }
+  .cal-day.empty { cursor: default; }
+
+  /* SLOTS */
+  .slots-title { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 300; color: var(--dark); margin: 28px 0 14px; }
+  .slots-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 10px; }
+  .slot { padding: 10px 0; text-align: center; border: 1.5px solid var(--border); border-radius: 8px; font-size: 14px; cursor: pointer; background: var(--white); color: var(--dark); transition: 0.2s ease; font-family: 'Jost', sans-serif; }
+  .slot:hover { border-color: var(--brown); color: var(--brown); }
+  .slot.selected { background: var(--brown); border-color: var(--brown); color: white; }
+  .slot.taken { background: #f5f0eb; color: #c8bbb0; cursor: not-allowed; border-color: transparent; text-decoration: line-through; }
+
+  /* FORM */
+  .form-group { margin-bottom: 20px; }
+  .form-group label { display: block; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .form-group input { width: 100%; padding: 13px 16px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Jost', sans-serif; font-size: 15px; color: var(--dark); background: var(--white); outline: none; transition: border-color 0.2s ease; }
+  .form-group input:focus { border-color: var(--brown); }
+  .form-group input::placeholder { color: #c8bbb0; }
+
+  /* RESUMEN */
+  .resumen-card { background: var(--white); border: 1px solid var(--border); border-radius: 14px; padding: 24px; margin-bottom: 28px; }
+  .resumen-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(122,107,95,0.08); font-size: 14px; }
+  .resumen-row:last-child { border-bottom: none; }
+  .resumen-label { color: var(--muted); font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; }
+  .resumen-value { font-weight: 500; color: var(--dark); text-align: right; }
+
+  /* SEÑA */
+  .sena-card { background: #fef9f0; border: 1.5px solid #e8d5a3; border-radius: 14px; padding: 20px 24px; margin-bottom: 24px; }
+  .sena-titulo { font-size: 14px; font-weight: 500; color: #8a6a20; margin-bottom: 6px; }
+  .sena-monto { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 300; color: #8a6a20; margin-bottom: 12px; }
+  .sena-desc { font-size: 13px; color: #a07830; line-height: 1.5; margin-bottom: 16px; }
+  .pago-opciones { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 0; }
+  .pago-opcion { border: 1.5px solid var(--border); border-radius: 10px; padding: 14px; cursor: pointer; transition: 0.2s; background: var(--white); text-align: center; }
+  .pago-opcion:hover { border-color: var(--brown); }
+  .pago-opcion.selected { border-color: var(--brown); background: #fdf7f2; }
+  .pago-opcion-icon { font-size: 22px; margin-bottom: 6px; }
+  .pago-opcion-label { font-size: 13px; font-weight: 500; color: var(--dark); }
+  .pago-detalle { margin-top: 14px; background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 16px; font-size: 13px; color: var(--dark); line-height: 1.7; display:none; }
+  .pago-detalle.visible { display: block; }
+  .pago-detalle pre { font-family: 'Jost', sans-serif; white-space: pre-wrap; }
+
+  /* GIFT CARD TAG */
+  .gift-badge { display:inline-flex;align-items:center;gap:6px;background:#f0ebe5;color:var(--brown);border-radius:20px;padding:4px 12px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:16px; }
+
+  /* BUTTONS */
+  .btn-primary { display: block; width: 100%; padding: 15px; background: var(--brown); color: white; border: none; border-radius: 10px; font-family: 'Jost', sans-serif; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: 0.25s ease; font-weight: 500; }
+  .btn-primary:hover { background: var(--dark); }
+  .btn-primary:disabled { background: #c8bbb0; cursor: not-allowed; }
+  .btn-secondary { display: inline-flex; align-items: center; gap: 6px; background: none; border: none; color: var(--muted); font-family: 'Jost', sans-serif; font-size: 13px; cursor: pointer; padding: 0; margin-bottom: 24px; transition: color 0.2s; }
+  .btn-secondary:hover { color: var(--brown); }
+
+  /* TOAST */
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: #3a3028; color: white; padding: 12px 24px; border-radius: 10px; font-size: 14px; opacity: 0; transition: all 0.3s ease; z-index: 999; white-space: nowrap; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.error { background: #b05a5a; }
+
+  /* SUCCESS */
+  .success-screen { text-align: center; padding: 40px 20px; }
+  .success-icon { width: 72px; height: 72px; border-radius: 50%; background: #f0ebe5; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 24px; }
+  .success-title { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 300; color: var(--dark); margin-bottom: 12px; }
+  .success-sub { font-size: 14px; color: var(--muted); line-height: 1.7; max-width: 340px; margin: 0 auto 32px; font-weight: 300; }
+  .success-detail { background: var(--white); border: 1px solid var(--border); border-radius: 14px; padding: 20px 24px; max-width: 360px; margin: 0 auto 32px; text-align: left; }
+
+  @media(max-width: 480px) {
+    .services-grid { grid-template-columns: 1fr; }
+    .step-line { width: 32px; }
+    .step-label { font-size: 9px; }
+    .slots-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">Gardenia</div>
+  <div class="tagline">Cosmetología · Reservar turno</div>
+</header>
+
+<div class="app">
+
+  <div class="steps" id="stepsBar">
+    <div class="step active" id="step1"><div class="step-dot">1</div><div class="step-label">Servicio</div></div>
+    <div class="step-line"></div>
+    <div class="step" id="step2"><div class="step-dot">2</div><div class="step-label">Fecha</div></div>
+    <div class="step-line"></div>
+    <div class="step" id="step3"><div class="step-dot">3</div><div class="step-label">Datos</div></div>
+    <div class="step-line"></div>
+    <div class="step" id="step4"><div class="step-dot">4</div><div class="step-label">Confirmar</div></div>
+  </div>
+
+  <!-- SCREEN 1: SERVICIOS -->
+  <div class="screen active" id="screen1">
+    <div class="section-title">¿Qué servicio deseás?</div>
+    <div class="section-sub">Seleccioná el tratamiento que querés reservar</div>
+    <div id="servicesContainer"><div class="loading">Cargando servicios</div></div>
+    <br>
+    <button class="btn-primary" id="btn1" disabled onclick="handleStep1()">Continuar</button>
+  </div>
+
+  <!-- SCREEN 2: FECHA (se oculta para gift cards) -->
+  <div class="screen" id="screen2">
+    <button class="btn-secondary" onclick="goTo(1)">← Volver</button>
+    <div class="section-title">Elegí una fecha</div>
+    <div class="section-sub" id="horariosLabel">Consultando horarios disponibles...</div>
+    <div class="calendar-header">
+      <button class="cal-nav" onclick="changeMonth(-1)">‹</button>
+      <div class="cal-month" id="calMonth"></div>
+      <button class="cal-nav" onclick="changeMonth(1)">›</button>
+    </div>
+    <div class="calendar-grid">
+      <div class="cal-days-header">
+        <div class="cal-day-name">Do</div><div class="cal-day-name">Lu</div><div class="cal-day-name">Ma</div>
+        <div class="cal-day-name">Mi</div><div class="cal-day-name">Ju</div><div class="cal-day-name">Vi</div><div class="cal-day-name">Sá</div>
+      </div>
+      <div class="cal-days" id="calDays"></div>
+    </div>
+    <div id="slotsSection" style="display:none">
+      <div class="slots-title" id="slotsTitle">Horarios disponibles</div>
+      <div class="slots-grid" id="slotsGrid"></div>
+    </div>
+    <br>
+    <button class="btn-primary" id="btn2" disabled onclick="goTo(3)">Continuar</button>
+  </div>
+
+  <!-- SCREEN 3: DATOS -->
+  <div class="screen" id="screen3">
+    <button class="btn-secondary" id="btn3Back" onclick="goTo(2)">← Volver</button>
+    <div class="section-title" id="screen3Title">Tus datos</div>
+    <div class="section-sub" id="screen3Sub">Para confirmar tu reserva necesitamos contactarte</div>
+
+    <div class="form-group"><label>Tu nombre completo</label><input type="text" id="inputNombre" placeholder="Ej: María González" oninput="checkForm3()"></div>
+    <div class="form-group"><label>Tu teléfono (WhatsApp)</label><input type="tel" id="inputTel" placeholder="Ej: 099 123 456" oninput="checkForm3()"></div>
+    <div class="form-group"><label>Email <span style="color:var(--muted);font-weight:300;font-size:11px">(opcional)</span></label><input type="email" id="inputEmail" placeholder="Ej: maria@email.com"></div>
+
+    <!-- Extra fields para gift card -->
+    <div id="giftCardFields" style="display:none">
+      <div class="gift-badge">🎁 Gift Card</div>
+      <div class="form-group"><label>¿A quién va dirigida?</label><input type="text" id="inputDestinatario" placeholder="Ej: Laura" oninput="checkForm3()"></div>
+    </div>
+
+    <button class="btn-primary" id="btn3" disabled onclick="goTo(4)">Revisar</button>
+  </div>
+
+  <!-- SCREEN 4: CONFIRMACIÓN -->
+  <div class="screen" id="screen4">
+    <button class="btn-secondary" onclick="goTo(3)">← Volver</button>
+    <div class="section-title">Revisá tu solicitud</div>
+    <div class="section-sub">Verificá los datos antes de confirmar</div>
+    <div class="resumen-card">
+      <div class="resumen-row"><span class="resumen-label">Servicio</span><span class="resumen-value" id="resServicio">—</span></div>
+      <div class="resumen-row" id="resFechaRow"><span class="resumen-label">Fecha</span><span class="resumen-value" id="resFecha">—</span></div>
+      <div class="resumen-row" id="resHorarioRow"><span class="resumen-label">Horario</span><span class="resumen-value" id="resHorario">—</span></div>
+      <div class="resumen-row" id="resDestinatarioRow" style="display:none"><span class="resumen-label">Para</span><span class="resumen-value" id="resDestinatario">—</span></div>
+      <div class="resumen-row"><span class="resumen-label">Nombre</span><span class="resumen-value" id="resNombre">—</span></div>
+      <div class="resumen-row"><span class="resumen-label">Contacto</span><span class="resumen-value" id="resContacto">—</span></div>
+    </div>
+
+    <!-- Bloque de seña (se muestra solo si el servicio requiere) -->
+    <div id="senaBlock" style="display:none">
+      <div class="sena-card">
+        <div class="sena-titulo">💳 Se requiere seña para confirmar el turno</div>
+        <div class="sena-monto" id="senaMonto">$ 0</div>
+        <div class="sena-desc">Para asegurar tu turno necesitás abonar una seña. Una vez que la recibamos, confirmamos tu reserva por WhatsApp.</div>
+        <div class="pago-opciones">
+          <div class="pago-opcion" id="pagoTransf" onclick="selectPago('transferencia')">
+            <div class="pago-opcion-icon">🏦</div>
+            <div class="pago-opcion-label">Transferencia</div>
+          </div>
+          <div class="pago-opcion" id="pagoMP" onclick="selectPago('mercadopago')">
+            <div class="pago-opcion-icon">💙</div>
+            <div class="pago-opcion-label">MercadoPago</div>
+          </div>
+        </div>
+        <div class="pago-detalle" id="pagoDetalle"></div>
+      </div>
+    </div>
+
+    <button class="btn-primary" id="btnConfirmar" onclick="confirmar()">Confirmar reserva</button>
+  </div>
+
+  <!-- SCREEN 5: ÉXITO -->
+  <div class="screen" id="screen5">
+    <div class="success-screen">
+      <div class="success-icon" id="okIcon">🌸</div>
+      <div class="success-title" id="okTitle">¡Solicitud enviada!</div>
+      <div class="success-sub" id="okSub">Tu solicitud fue recibida. Te avisaremos por WhatsApp cuando confirmemos.</div>
+      <div class="success-detail">
+        <div class="resumen-row"><span class="resumen-label">Servicio</span><span class="resumen-value" id="okServicio">—</span></div>
+        <div class="resumen-row" id="okFechaRow"><span class="resumen-label">Fecha y hora</span><span class="resumen-value" id="okFecha">—</span></div>
+        <div class="resumen-row"><span class="resumen-label">Estado</span><span class="resumen-value" id="okEstado" style="color:#a07850">⏳ Pendiente de confirmación</span></div>
+      </div>
+      <button class="btn-primary" style="max-width:280px;margin:0 auto" onclick="resetApp()">Volver al inicio</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── SUPABASE ──
+const { createClient } = supabase;
+const sb = createClient(
+  'https://zxurgaxntoryfpeuelqf.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4dXJnYXhudG9yeWZwZXVlbHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NDI2MTcsImV4cCI6MjA4NzUxODYxN30.uZ53JR4s_kF_dxgGbFkdxPJP_Nj1t3kUqHNilIhkQwU'
+);
+
+const SLUG = 'gardenia';
+
+// ── STATE ──
+const state = {
+  negocioId:    null,
+  service:      null,
+  serviceId:    null,
+  duracion:     0,
+  isGiftCard:   false,   // true si el servicio es Gift Card
+  requiereSena: false,   // true si el servicio tiene seña activada
+  montoSena:    0,
+  pagoMetodo:   null,    // 'transferencia' | 'mercadopago'
+  config:       null,
+  horarios:     [],
+  date:         null,
+  time:         null,
+  nombre: '', tel: '', email: '', destinatario: ''
+};
+
+let currentMonth, currentYear;
+
+// ── INIT ──
+(async () => {
+  const now = new Date();
+  currentMonth = now.getMonth();
+  currentYear  = now.getFullYear();
+
+  // Cargar negocio (primero solo id, nombre básico)
+  const { data: negocio, error: negError } = await sb
+    .from('negocios').select('id, nombre, tagline').eq('slug', SLUG).single();
+
+  if (negError || !negocio) {
+    // Fallback: intentar solo con id
+    const { data: negBasic } = await sb
+      .from('negocios').select('id, nombre').eq('slug', SLUG).single();
+    if (!negBasic) { showToast('Error al cargar el negocio', true); return; }
+    state.negocioId = negBasic.id;
+    if (negBasic.nombre) document.querySelector('header .brand').textContent = negBasic.nombre;
+  } else {
+    state.negocioId = negocio.id;
+    if (negocio.nombre)  document.querySelector('header .brand').textContent   = negocio.nombre;
+    if (negocio.tagline) document.querySelector('header .tagline').textContent = negocio.tagline;
+  }
+
+  // Cargar servicios, horarios y config en paralelo
+  const [{ data: servicios }, { data: horarios }, { data: config }] = await Promise.all([
+    sb.from('servicios').select('id, nombre, precio, duracion, requiere_sena, monto_sena').eq('negocio_id', state.negocioId).eq('activo', true).order('nombre'),
+    sb.from('horarios').select('dia_semana, hora_inicio, hora_fin').eq('negocio_id', state.negocioId).eq('activo', true),
+    sb.from('notif_config').select('*').eq('negocio_id', state.negocioId).single()
+  ]);
+
+  renderServices(servicios || []);
+  state.horarios = horarios || [];
+  state.config   = config   || {};
+
+  // Label de horarios disponibles
+  const dias = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const diasDisp = state.horarios.map(h => dias[h.dia_semana]).join(', ');
+  let labelText = diasDisp ? `Días disponibles: ${diasDisp}` : 'Consultá disponibilidad';
+  if (state.config.anticipacion_minima > 0) {
+    const hs = state.config.anticipacion_minima;
+    labelText += ` · Reservas con ${hs >= 24 ? Math.floor(hs/24) + ' día(s)' : hs + 'hs'} de anticipación`;
+  }
+  document.getElementById('horariosLabel').textContent = labelText;
+
+  renderCalendar();
+})();
+
+// ── SERVICES ──
+function renderServices(servicios) {
+  const container = document.getElementById('servicesContainer');
+  if (!servicios.length) {
+    container.innerHTML = '<p style="color:var(--muted);font-size:14px">No hay servicios disponibles por el momento.</p>';
+    return;
+  }
+  container.innerHTML = `<div class="services-grid">${
+    servicios.map(s => {
+      const isGift = s.nombre.toLowerCase().includes('gift card');
+      const senaBadge = s.requiere_sena ? `<span style="font-size:10px;color:#a07830;background:#fef3dd;padding:2px 8px;border-radius:10px;margin-left:6px">Requiere seña</span>` : '';
+      const giftBadge = isGift ? `<span style="font-size:10px;color:var(--brown);background:#f0ebe5;padding:2px 8px;border-radius:10px;margin-left:6px">🎁 Gift</span>` : '';
+      return `
+        <div class="service-card" onclick="selectService(this,'${s.nombre}','${s.id}',${s.duracion||0},${!!isGift},${!!s.requiere_sena},${s.monto_sena||0})">
+          <div class="service-name">${s.nombre}${giftBadge}${senaBadge}</div>
+          <div class="service-meta">
+            <span class="service-price">${s.precio ? '$ ' + s.precio.toLocaleString('es-UY') : 'Consultar precio'}</span>
+            <span class="service-duration">${s.duracion ? s.duracion + ' min' : ''}</span>
+          </div>
+        </div>`;
+    }).join('')
+  }</div>`;
+}
+
+function selectService(el, name, id, duracion, isGiftCard, requiereSena, montoSena) {
+  document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  state.service      = name;
+  state.serviceId    = id;
+  state.duracion     = duracion;
+  state.isGiftCard   = isGiftCard;
+  state.requiereSena = requiereSena;
+  state.montoSena    = montoSena;
+  state.pagoMetodo   = null;
+  document.getElementById('btn1').disabled = false;
+}
+
+// ── STEP 1 → decide si va a fecha o directo a datos (gift card) ──
+function handleStep1() {
+  if (state.isGiftCard) {
+    // Gift card: saltear pantalla de fecha
+    document.getElementById('step2').style.opacity = '0.3';
+    document.getElementById('screen3Title').textContent = 'Tus datos';
+    document.getElementById('screen3Sub').textContent   = 'Completá los datos para la Gift Card';
+    document.getElementById('giftCardFields').style.display = 'block';
+    document.getElementById('btn3Back').onclick = () => goTo(1);
+    goToScreen(3);
+  } else {
+    document.getElementById('step2').style.opacity = '1';
+    document.getElementById('giftCardFields').style.display = 'none';
+    document.getElementById('btn3Back').onclick = () => goTo(2);
+    goTo(2);
+  }
+}
+
+// ── NAVIGATION ──
+function goToScreen(n) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen' + n).classList.add('active');
+  document.querySelectorAll('.step').forEach((s, i) => {
+    s.classList.remove('active', 'done');
+    if (i + 1 < n)  s.classList.add('done');
+    if (i + 1 === n) s.classList.add('active');
+  });
+  if (n === 4) fillResumen();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function goTo(n) {
+  goToScreen(n);
+}
+
+// ── CALENDAR ──
+const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+function changeMonth(dir) {
+  currentMonth += dir;
+  if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+  if (currentMonth < 0)  { currentMonth = 11; currentYear--; }
+  renderCalendar();
+}
+
+function renderCalendar() {
+  document.getElementById('calMonth').textContent = MONTHS[currentMonth] + ' ' + currentYear;
+  const grid = document.getElementById('calDays');
+  grid.innerHTML = '';
+  const firstDay    = new Date(currentYear, currentMonth, 1).getDay();
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const now         = new Date();
+  const diasHabilitados = state.horarios.map(h => h.dia_semana);
+
+  // Anticipación mínima: calcular fecha mínima permitida
+  const anticipacionHs = state.config?.anticipacion_minima || 0;
+  const fechaMinima = new Date(now.getTime() + anticipacionHs * 60 * 60 * 1000);
+  fechaMinima.setHours(0, 0, 0, 0);
+
+  for (let i = 0; i < firstDay; i++) {
+    const el = document.createElement('div');
+    el.className = 'cal-day empty';
+    grid.appendChild(el);
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    const date = new Date(currentYear, currentMonth, d);
+    const dow  = date.getDay();
+    const el   = document.createElement('div');
+    el.textContent = d;
+    el.className   = 'cal-day';
+
+    const antesDeMinima = date < fechaMinima;
+    const isAvailable   = !antesDeMinima && diasHabilitados.includes(dow);
+
+    if (!isAvailable) el.classList.add('disabled');
+    if (date.toDateString() === now.toDateString()) el.classList.add('today');
+    if (isAvailable) el.onclick = () => selectDate(date, el);
+    grid.appendChild(el);
+  }
+}
+
+function selectDate(date, el) {
+  document.querySelectorAll('.cal-day').forEach(d => d.classList.remove('selected'));
+  el.classList.add('selected');
+  state.date = date;
+  state.time = null;
+  document.getElementById('btn2').disabled = true;
+  renderSlots(date);
+}
+
+// Convierte "HH:MM" a minutos desde medianoche
+function toMin(timeStr) {
+  const [h, m] = timeStr.split(':').map(Number);
+  return h * 60 + m;
+}
+
+// Convierte minutos desde medianoche a "HH:MM"
+function fromMin(mins) {
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+}
+
+async function renderSlots(date) {
+  const dow     = date.getDay();
+  const horario = state.horarios.find(h => h.dia_semana === dow);
+  if (!horario) return;
+
+  const cfg              = state.config || {};
+  const intervalo        = cfg.intervalo_slots         || 30;
+  const bloquearDuracion = cfg.bloquear_por_duracion  !== false; // default true
+  const pausa            = cfg.tiempo_entre_reservas   || 0;
+  const anticipacionHs   = cfg.anticipacion_minima     || 0;
+
+  const startMin = toMin(horario.hora_inicio.slice(0,5));
+  const endMin   = toMin(horario.hora_fin.slice(0,5));
+
+  // Generar slots
+  const todosSlots = [];
+  for (let m = startMin; m < endMin; m += intervalo) todosSlots.push(m);
+
+  // Buscar reservas del día
+  const fechaStr = date.toISOString().split('T')[0];
+  const { data: reservasExistentes } = await sb
+    .from('reservas')
+    .select('hora, servicio_id, servicio_nombre')
+    .eq('negocio_id', state.negocioId)
+    .eq('fecha', fechaStr)
+    .in('estado', ['pendiente', 'confirmada']);
+
+  // Buscar duraciones de servicios de las reservas existentes
+  const serviciosIds = [...new Set((reservasExistentes||[]).map(r => r.servicio_id).filter(Boolean))];
+  let durMap = {};
+  if (serviciosIds.length) {
+    const { data: servs } = await sb.from('servicios').select('id, duracion').in('id', serviciosIds);
+    (servs||[]).forEach(s => { durMap[s.id] = s.duracion || intervalo; });
+  }
+
+  // Armar rangos bloqueados por cada reserva existente
+  // Si no tiene duración conocida, bloqueamos al menos 1 intervalo
+  const rangos = (reservasExistentes || []).map(r => {
+    const inicio = toMin(r.hora.slice(0,5));
+    const dur    = durMap[r.servicio_id] || intervalo;
+    return { inicio, fin: inicio + dur + pausa };
+  });
+
+  // Duración del servicio que seleccionó el cliente
+  // Si no tiene duración cargada, usamos 1 intervalo como mínimo para bloquear el slot exacto
+  const durCliente = state.duracion > 0 ? state.duracion : intervalo;
+
+  // Hora mínima si es hoy + anticipación
+  const now = new Date();
+  const esHoy = date.toDateString() === now.toDateString();
+  const minActual = now.getHours() * 60 + now.getMinutes();
+  const minPermitido = esHoy ? minActual + anticipacionHs * 60 : -1;
+
+  const grid = document.getElementById('slotsGrid');
+  grid.innerHTML = '<div style="grid-column:1/-1;font-size:12px;color:var(--muted);margin-bottom:4px">Cargando horarios...</div>';
+
+  let alguno = false;
+  const elementos = [];
+
+  todosSlots.forEach(slotMin => {
+    // 1. Pasado o muy pronto (hoy)
+    const esPasado = esHoy && slotMin <= minPermitido;
+
+    // 2. El servicio del cliente no entra antes del cierre
+    const superaCierre = bloquearDuracion && (slotMin + durCliente + pausa) > endMin;
+
+    // 3. Solapamiento con reservas existentes
+    // El nuevo turno ocupa: slotMin hasta slotMin + durCliente + pausa
+    // Bloqueado si ese rango se superpone con cualquier rango existente
+    const nuevoFin = slotMin + durCliente + pausa;
+    let seSolapa = false;
+    if (bloquearDuracion) {
+      seSolapa = rangos.some(r => slotMin < r.fin && nuevoFin > r.inicio);
+    } else {
+      seSolapa = rangos.some(r => slotMin >= r.inicio && slotMin < r.fin);
+    }
+
+    const isTaken = esPasado || superaCierre || seSolapa;
+    const label   = fromMin(slotMin);
+
+    const el = document.createElement('div');
+    el.className   = 'slot' + (isTaken ? ' taken' : '');
+    el.textContent = label;
+    if (!isTaken) {
+      el.onclick = () => selectSlot(label, el);
+      alguno = true;
+    }
+    elementos.push(el);
+  });
+
+  grid.innerHTML = '';
+  elementos.forEach(el => grid.appendChild(el));
+
+  if (!alguno) {
+    grid.innerHTML = '<p style="color:var(--muted);font-size:13px;grid-column:1/-1;padding:10px 0">No hay horarios disponibles para este día.</p>';
+  }
+
+  const monthNames = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const days = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+  document.getElementById('slotsTitle').textContent =
+    `Horarios — ${days[date.getDay()]} ${date.getDate()} de ${monthNames[date.getMonth()]}`;
+  document.getElementById('slotsSection').style.display = 'block';
+}
+
+function selectSlot(time, el) {
+  document.querySelectorAll('.slot').forEach(s => s.classList.remove('selected'));
+  el.classList.add('selected');
+  state.time = time;
+  document.getElementById('btn2').disabled = false;
+}
+
+// ── FORM ──
+function checkForm3() {
+  const n = document.getElementById('inputNombre').value.trim();
+  const t = document.getElementById('inputTel').value.trim();
+  const d = document.getElementById('inputDestinatario').value.trim();
+  const ok = n && t && (!state.isGiftCard || d);
+  document.getElementById('btn3').disabled = !ok;
+}
+
+// ── RESUMEN ──
+function fillResumen() {
+  const monthNames = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const days = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+
+  state.nombre       = document.getElementById('inputNombre').value.trim();
+  state.tel          = document.getElementById('inputTel').value.trim();
+  state.email        = document.getElementById('inputEmail').value.trim();
+  state.destinatario = document.getElementById('inputDestinatario').value.trim();
+
+  document.getElementById('resServicio').textContent = state.service;
+  document.getElementById('resNombre').textContent   = state.nombre;
+  document.getElementById('resContacto').textContent = state.email ? state.tel + ' · ' + state.email : state.tel;
+
+  // Fecha/hora solo para reservas normales
+  const fechaRow    = document.getElementById('resFechaRow');
+  const horarioRow  = document.getElementById('resHorarioRow');
+  const destRow     = document.getElementById('resDestinatarioRow');
+
+  if (state.isGiftCard) {
+    fechaRow.style.display   = 'none';
+    horarioRow.style.display = 'none';
+    destRow.style.display    = 'flex';
+    document.getElementById('resDestinatario').textContent = state.destinatario;
+  } else {
+    fechaRow.style.display   = 'flex';
+    horarioRow.style.display = 'flex';
+    destRow.style.display    = 'none';
+    const d = state.date;
+    document.getElementById('resFecha').textContent   = `${days[d.getDay()]} ${d.getDate()} de ${monthNames[d.getMonth()]} ${d.getFullYear()}`;
+    document.getElementById('resHorario').textContent = state.time + ' hs';
+  }
+
+  // Bloque de seña
+  const senaBlock = document.getElementById('senaBlock');
+  if (state.requiereSena && !state.isGiftCard) {
+    senaBlock.style.display = 'block';
+    document.getElementById('senaMonto').textContent = '$ ' + state.montoSena.toLocaleString('es-UY');
+    // Reset selección de pago
+    document.getElementById('pagoTransf').classList.remove('selected');
+    document.getElementById('pagoMP').classList.remove('selected');
+    document.getElementById('pagoDetalle').classList.remove('visible');
+    state.pagoMetodo = null;
+  } else {
+    senaBlock.style.display = 'none';
+  }
+}
+
+function selectPago(metodo) {
+  state.pagoMetodo = metodo;
+  document.getElementById('pagoTransf').classList.toggle('selected', metodo === 'transferencia');
+  document.getElementById('pagoMP').classList.toggle('selected', metodo === 'mercadopago');
+
+  const detalle = document.getElementById('pagoDetalle');
+  const cfg = state.config || {};
+
+  if (metodo === 'transferencia') {
+    const datos = cfg.pago_transferencia_datos || 'Datos de transferencia no configurados aún. Consultá por WhatsApp.';
+    detalle.innerHTML = `<pre>${datos}</pre>`;
+    detalle.classList.add('visible');
+  } else if (metodo === 'mercadopago') {
+    const link = cfg.pago_mp_link;
+    if (link) {
+      detalle.innerHTML = `<a href="${link}" target="_blank" style="color:var(--brown);font-weight:500;text-decoration:none">👉 Ir a pagar con MercadoPago →</a><br><span style="font-size:12px;color:var(--muted)">Guardá el comprobante para enviarlo por WhatsApp.</span>`;
+    } else {
+      detalle.innerHTML = 'Link de MercadoPago no configurado aún. Consultá por WhatsApp.';
+    }
+    detalle.classList.add('visible');
+  }
+}
+
+async function confirmar() {
+  // Si hay seña y no eligió método de pago, recordárselo
+  if (state.requiereSena && !state.isGiftCard && !state.pagoMetodo) {
+    showToast('Seleccioná un método de pago para la seña', true);
+    return;
+  }
+
+  const btn = document.getElementById('btnConfirmar');
+  btn.disabled = true;
+  btn.textContent = 'Guardando...';
+
+  const fechaStr = state.isGiftCard ? null : state.date.toISOString().split('T')[0];
+
+  const { error } = await sb.from('reservas').insert({
+    negocio_id:      state.negocioId,
+    servicio_id:     state.serviceId,
+    servicio_nombre: state.service,
+    fecha:           fechaStr,
+    hora:            state.isGiftCard ? null : state.time + ':00',
+    cliente_nombre:  state.nombre,
+    cliente_tel:     state.tel,
+    cliente_email:   state.email || null,
+    estado:          'pendiente',
+    tipo:            state.isGiftCard ? 'gift_card' : 'reserva',
+    destinatario:    state.destinatario || null,
+    requiere_sena:   state.requiereSena && !state.isGiftCard,
+    monto_sena:      state.requiereSena && !state.isGiftCard ? state.montoSena : 0,
+    pago_metodo:     state.pagoMetodo || null,
+    pago_estado:     state.requiereSena && !state.isGiftCard ? 'pendiente_pago' : 'sin_sena',
+  });
+
+  btn.disabled = false;
+  btn.textContent = 'Confirmar reserva';
+
+  if (error) { showToast('Hubo un error al guardar. Intentá de nuevo.', true); return; }
+
+  // Pantalla de éxito personalizada
+  const monthNames = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  document.getElementById('okServicio').textContent = state.service;
+
+  if (state.isGiftCard) {
+    document.getElementById('okIcon').textContent  = '🎁';
+    document.getElementById('okTitle').textContent = '¡Gift Card solicitada!';
+    document.getElementById('okSub').textContent   = `Tu pedido fue recibido. Te contactaremos por WhatsApp para coordinar la entrega.`;
+    document.getElementById('okFechaRow').style.display = 'none';
+    document.getElementById('okEstado').textContent = '⏳ Pendiente de confirmación';
+  } else if (state.requiereSena) {
+    document.getElementById('okIcon').textContent  = '💳';
+    document.getElementById('okTitle').textContent = '¡Solicitud enviada!';
+    document.getElementById('okSub').textContent   = `Cuando recibamos tu seña de $${state.montoSena.toLocaleString('es-UY')} confirmamos tu turno por WhatsApp.`;
+    document.getElementById('okFecha').textContent = `${state.date.getDate()} de ${monthNames[state.date.getMonth()]} · ${state.time} hs`;
+    document.getElementById('okFechaRow').style.display = 'flex';
+    document.getElementById('okEstado').textContent = '⏳ Esperando pago de seña';
+  } else {
+    document.getElementById('okIcon').textContent  = '🌸';
+    document.getElementById('okTitle').textContent = '¡Reserva enviada!';
+    document.getElementById('okSub').textContent   = 'Tu solicitud fue recibida. Te avisaremos por WhatsApp cuando confirmemos tu turno.';
+    document.getElementById('okFecha').textContent = `${state.date.getDate()} de ${monthNames[state.date.getMonth()]} · ${state.time} hs`;
+    document.getElementById('okFechaRow').style.display = 'flex';
+    document.getElementById('okEstado').textContent = '⏳ Pendiente de confirmación';
+  }
+
+  goToScreen(5);
+}
+
+// ── RESET ──
+function resetApp() {
+  Object.assign(state, {
+    service: null, serviceId: null, duracion: 0,
+    isGiftCard: false, requiereSena: false, montoSena: 0, pagoMetodo: null,
+    date: null, time: null, nombre: '', tel: '', email: '', destinatario: ''
+  });
+  document.getElementById('btn1').disabled = true;
+  document.getElementById('btn3').disabled = true;
+  ['inputNombre','inputTel','inputEmail','inputDestinatario'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('giftCardFields').style.display = 'none';
+  document.getElementById('slotsSection').style.display   = 'none';
+  document.getElementById('step2').style.opacity = '1';
+  currentMonth = new Date().getMonth();
+  currentYear  = new Date().getFullYear();
+  renderCalendar();
+  goToScreen(1);
+}
+
+// ── TOAST ──
+function showToast(msg, isError = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (isError ? ' error' : '');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+</script>
+</body>
+</html>
