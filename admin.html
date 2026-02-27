@@ -96,17 +96,6 @@ body{font-family:'Jost',sans-serif;background:#f7f2ed;color:var(--dark);min-heig
 .card-title{font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:18px;font-weight:500;}
 
 /* ── RESERVAS TABLE ── */
-.reserva-item{
-  display:grid;grid-template-columns:90px 1fr 120px 110px auto;
-  align-items:center;gap:16px;padding:14px 0;
-  border-bottom:1px solid rgba(122,107,95,0.08);
-}
-.reserva-item:last-child{border-bottom:none;}
-.res-fecha{font-size:13px;color:var(--muted);}
-.res-info .nombre{font-size:15px;font-weight:500;color:var(--dark);}
-.res-info .servicio{font-size:12px;color:var(--muted);margin-top:2px;}
-.res-hora{font-size:14px;font-weight:500;color:var(--dark);}
-.res-tel{font-size:12px;color:var(--muted);}
 .badge{
   display:inline-flex;align-items:center;padding:4px 10px;border-radius:20px;
   font-size:11px;font-weight:500;letter-spacing:0.5px;
@@ -164,398 +153,97 @@ body{font-family:'Jost',sans-serif;background:#f7f2ed;color:var(--dark);min-heig
 
 /* ── SERVICIOS ── */
 .servicio-item{
-  display:grid;grid-template-columns:1fr 120px 120px auto;
-  align-items:center;gap:16px;padding:14px 0;
-  border-bottom:1px solid rgba(122,107,95,0.08);
-}
-.servicio-item:last-child{border-bottom:none;}
-.serv-nombre{font-size:15px;color:var(--dark);}
-.serv-input{
-  padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;
-  font-family:'Jost',sans-serif;font-size:14px;color:var(--dark);
-  background:var(--white);outline:none;width:100%;transition:border-color 0.2s;
-}
-.serv-input:focus{border-color:var(--brown);}
-
-/* ── BUTTONS ── */
-.btn-primary{
-  padding:11px 24px;background:var(--brown);color:white;border:none;border-radius:9px;
-  font-family:'Jost',sans-serif;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;
-  cursor:pointer;transition:0.25s;font-weight:500;
-}
-.btn-primary:hover{background:var(--dark);}
-.btn-primary:disabled{background:#c8bbb0;cursor:not-allowed;}
-
-/* ── TOAST ── */
-.toast{
-  position:fixed;bottom:24px;right:24px;background:var(--dark);color:white;
-  padding:12px 20px;border-radius:10px;font-size:13px;opacity:0;
-  transition:all 0.3s ease;z-index:999;pointer-events:none;
-}
-.toast.show{opacity:1;}
-.toast.ok{background:var(--green);}
-.toast.err{background:var(--red);}
-
-/* ── TABLA RESERVAS ── */
-.reserva-header {
-  display:grid;
-  grid-template-columns: 80px 1fr 1fr 70px 130px 100px 160px;
-  gap:12px;padding:10px 20px;
-  font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);
-  background:var(--cream);border:1px solid var(--border);border-radius:12px 12px 0 0;
-  margin-bottom:0;
-}
-.reserva-item {
-  display:grid;
-  grid-template-columns: 80px 1fr 1fr 70px 130px 100px 160px;
-  align-items:center;gap:12px;
-  padding:14px 20px;
-  border-bottom:1px solid rgba(122,107,95,0.08);
-}
-.reserva-item:last-child{border-bottom:none;}
-.res-fecha{font-size:13px;color:var(--muted);white-space:nowrap;}
-.res-nombre{font-size:14px;font-weight:500;color:var(--dark);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.res-servicio{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.res-hora{font-size:14px;font-weight:500;color:var(--dark);white-space:nowrap;}
-.res-tel{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.res-actions{display:flex;gap:6px;flex-wrap:wrap;}
-
-@media(max-width:900px){
-  .reserva-header{display:none;}
-  .reserva-item{grid-template-columns:1fr auto;grid-template-rows:auto auto auto;gap:4px 12px;}
-}
-
-/* ── AGREGAR SERVICIO FORM ── */
-.agregar-serv-form {
-  display: grid;
-  grid-template-columns: 1fr 110px 110px auto;
-  gap: 12px;
-  align-items: end;
-}
-
-/* ── HORARIOS base ── */
-.horarios-grid { display:flex;flex-direction:column;gap:0; }
-.horario-dia {
-  display:grid;grid-template-columns:110px 1fr;
-  align-items:center;gap:16px;padding:16px 0;
-  border-bottom:1px solid rgba(122,107,95,0.08);
-}
-.horario-dia:last-child{border-bottom:none;}
-.dia-label{font-size:13px;font-weight:500;color:var(--dark);}
-.dia-label.inactivo{color:var(--muted);}
-.horario-inputs{display:flex;align-items:center;gap:10px;}
-.horario-inputs input[type="time"]{
-  padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;
-  font-family:'Jost',sans-serif;font-size:14px;color:var(--dark);
-  background:#faf8f6;outline:none;transition:border-color 0.2s;width:120px;
-}
-.horario-inputs input[type="time"]:focus{border-color:var(--brown);}
-.horario-inputs input[type="time"]:disabled{background:#f0ebe5;color:#c8bbb0;}
-.horario-sep{font-size:12px;color:var(--muted);}
-
-/* ── AGREGAR SERVICIO ── */
-.agregar-serv-form{
-  display:grid;grid-template-columns:1fr 110px 110px auto;
-  gap:12px;align-items:end;
-}
-
-/* ── MOBILE ── */
-@media(max-width:768px){
-  .sidebar{display:none;}
-  .layout{flex-direction:column;}
-  .main{margin-left:0;padding:16px 16px 80px;overflow-x:hidden;}
-  body{overflow-x:hidden;}
-
-  /* Bottom nav */
-  .bottom-nav{
-    display:flex !important;
-    position:fixed;bottom:0;left:0;right:0;z-index:100;
-    background:var(--white);border-top:1px solid var(--border);
-    padding:6px 0 calc(6px + env(safe-area-inset-bottom));
-    justify-content:space-around;
-  }
-  .bottom-nav-item{
-    display:flex;flex-direction:column;align-items:center;gap:3px;
-    padding:4px 6px;cursor:pointer;border-radius:10px;transition:0.2s;
-    color:var(--muted);font-size:9px;letter-spacing:0.5px;
-    text-transform:uppercase;flex:1;max-width:72px;
-  }
-  .bottom-nav-item .bnav-icon{font-size:20px;line-height:1;}
-  .bottom-nav-item.active{color:var(--brown);}
-
-  /* Mas menu */
-  #masMenu{max-width:100%;box-sizing:border-box;}
-
-  /* Stats */
-  .stats-row{grid-template-columns:repeat(2,1fr);}
-
-  /* Reservas — card simple mobile */
-  .reserva-header{display:none;}
-  .reserva-item{
-    display:flex;flex-direction:column;gap:4px;
-    padding:14px 16px;border-bottom:1px solid rgba(122,107,95,0.08);
-    cursor:pointer;
-  }
-  .reserva-item:active{background:#faf8f6;}
-  .res-row-top{display:flex;justify-content:space-between;align-items:center;}
-  .res-nombre-m{font-weight:500;font-size:14px;}
-  .res-servicio-m{font-size:13px;color:var(--muted);}
-  .res-meta{display:flex;gap:8px;align-items:center;margin-top:2px;}
-  .res-actions{display:none;}
-
-  /* Servicios — card simple mobile */
-  .servicio-item{
-    display:flex;justify-content:space-between;align-items:center;
-    padding:14px 0;border-bottom:1px solid rgba(122,107,95,0.08);
-    cursor:pointer;
-  }
-  .serv-info-m{display:flex;flex-direction:column;gap:3px;}
-  .serv-nombre-m{font-weight:500;font-size:14px;}
-  .serv-meta-m{font-size:12px;color:var(--muted);}
-  .serv-edit-cols{display:none;}
-
-  /* Agregar servicio */
-  .agregar-serv-form{grid-template-columns:1fr 1fr;}
-  .agregar-serv-form button{grid-column:1/-1;}
-
-  /* Horarios */
-  .horario-dia{grid-template-columns:100px 1fr;}
-  .horario-inputs input[type="time"]{width:95px;font-size:13px;padding:7px 8px;}
-
-  /* Bloqueos */
-  .bloqueo-form{grid-template-columns:1fr 1fr;}
-
-  /* Agenda */
-  .agenda-grid{grid-template-columns:repeat(3,1fr);}
-
-  /* Config */
-  .notif-item{flex-wrap:wrap;gap:10px;}
-
-  /* Modal */
-  .modal{padding:24px 18px;margin:12px;}
-  .modal-grid{grid-template-columns:1fr;}
-  .modal-grid .form-field.full{grid-column:1;}
-}
-@media(min-width:769px){
-  .bottom-nav{display:none !important;}
-  #masMenu{display:none !important;}
-}
-.serv-nombre{font-size:15px;color:var(--dark);}
-.serv-input{
-  padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;
-  font-family:'Jost',sans-serif;font-size:14px;color:var(--dark);
-  background:var(--white);outline:none;width:100%;transition:border-color 0.2s;
-}
-.serv-input:focus{border-color:var(--brown);}
-
-/* ── BUTTONS ── */
-.btn-primary{
-  padding:11px 24px;background:var(--brown);color:white;border:none;border-radius:9px;
-  font-family:'Jost',sans-serif;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;
-  cursor:pointer;transition:0.25s;font-weight:500;
-}
-.btn-primary:hover{background:var(--dark);}
-.btn-primary:disabled{background:#c8bbb0;cursor:not-allowed;}
-
-/* ── TOAST ── */
-.toast{
-  position:fixed;bottom:24px;right:24px;background:var(--dark);color:white;
-  padding:12px 20px;border-radius:10px;font-size:13px;opacity:0;
-  transition:all 0.3s ease;z-index:999;pointer-events:none;
-}
-.toast.show{opacity:1;}
-.toast.ok{background:var(--green);}
-.toast.err{background:var(--red);}
-
-/* ── TABLA RESERVAS ── */
-.reserva-header {
-  display:grid;
-  grid-template-columns: 80px 1fr 1fr 70px 130px 100px 160px;
-  gap:12px;padding:10px 20px;
-  font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);
-  background:var(--cream);border:1px solid var(--border);border-radius:12px 12px 0 0;
-  margin-bottom:0;
-}
-.reserva-item {
-  display:grid;
-  grid-template-columns: 80px 1fr 1fr 70px 130px 100px 160px;
-  align-items:center;gap:12px;
-  padding:14px 20px;
-  border-bottom:1px solid rgba(122,107,95,0.08);
-}
-.reserva-item:last-child{border-bottom:none;}
-.res-fecha{font-size:13px;color:var(--muted);white-space:nowrap;}
-.res-nombre{font-size:14px;font-weight:500;color:var(--dark);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.res-servicio{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.res-hora{font-size:14px;font-weight:500;color:var(--dark);white-space:nowrap;}
-.res-tel{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.res-actions{display:flex;gap:6px;flex-wrap:wrap;}
-
-@media(max-width:900px){
-  .reserva-header{display:none;}
-  .reserva-item{grid-template-columns:1fr auto;grid-template-rows:auto auto auto;gap:4px 12px;}
-}
-
-/* ── AGREGAR SERVICIO FORM ── */
-.agregar-serv-form {
-  display: grid;
-  grid-template-columns: 1fr 110px 110px auto;
-  gap: 12px;
-  align-items: end;
-}
-
-/* ── HORARIOS base ── */
-.horarios-grid { display:flex;flex-direction:column;gap:0; }
-.horario-dia {
-  display:grid;grid-template-columns:110px 1fr;
-  align-items:center;gap:16px;padding:16px 0;
-  border-bottom:1px solid rgba(122,107,95,0.08);
-}
-.horario-dia:last-child{border-bottom:none;}
-.dia-label{font-size:13px;font-weight:500;color:var(--dark);}
-.dia-label.inactivo{color:var(--muted);}
-.horario-inputs{display:flex;align-items:center;gap:10px;}
-.horario-inputs input[type="time"]{
-  padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;
-  font-family:'Jost',sans-serif;font-size:14px;color:var(--dark);
-  background:#faf8f6;outline:none;transition:border-color 0.2s;width:120px;
-}
-.horario-inputs input[type="time"]:focus{border-color:var(--brown);}
-.horario-inputs input[type="time"]:disabled{background:#f0ebe5;color:#c8bbb0;}
-.horario-sep{font-size:12px;color:var(--muted);}
-
-/* ── AGREGAR SERVICIO ── */
-.agregar-serv-form{
-  display:grid;grid-template-columns:1fr 110px 110px auto;
-  gap:12px;align-items:end;
-}
-
-/* ── MOBILE ── */
-@media(max-width:768px){
-  .sidebar{display:none;}
-  .layout{flex-direction:column;}
-  .main{margin-left:0;padding:16px 16px 80px;overflow-x:hidden;}
-  body{overflow-x:hidden;}
-
-  /* Bottom nav */
-  .bottom-nav{
-    display:flex !important;
-    position:fixed;bottom:0;left:0;right:0;z-index:100;
-    background:var(--white);border-top:1px solid var(--border);
-    padding:6px 0 calc(6px + env(safe-area-inset-bottom));
-    justify-content:space-around;
-  }
-  .bottom-nav-item{
-    display:flex;flex-direction:column;align-items:center;gap:3px;
-    padding:4px 6px;cursor:pointer;border-radius:10px;transition:0.2s;
-    color:var(--muted);font-size:9px;letter-spacing:0.5px;
-    text-transform:uppercase;flex:1;max-width:72px;
-  }
-  .bottom-nav-item .bnav-icon{font-size:20px;line-height:1;}
-  .bottom-nav-item.active{color:var(--brown);}
-
-  /* Mas menu */
-  #masMenu{max-width:100%;box-sizing:border-box;}
-
-  /* Stats */
-  .stats-row{grid-template-columns:repeat(2,1fr);}
-
-  /* Reservas — card simple mobile */
-  .reserva-header{display:none;}
-  .reserva-item{
-    display:flex;flex-direction:column;gap:4px;
-    padding:14px 16px;border-bottom:1px solid rgba(122,107,95,0.08);
-    cursor:pointer;
-  }
-  .reserva-item:active{background:#faf8f6;}
-  .res-row-top{display:flex;justify-content:space-between;align-items:center;}
-  .res-nombre-m{font-weight:500;font-size:14px;}
-  .res-servicio-m{font-size:13px;color:var(--muted);}
-  .res-meta{display:flex;gap:8px;align-items:center;margin-top:2px;}
-  .res-actions{display:none;}
-
-  /* Servicios — card simple mobile */
-  .servicio-item{
-    display:flex;justify-content:space-between;align-items:center;
-    padding:14px 0;border-bottom:1px solid rgba(122,107,95,0.08);
-    cursor:pointer;
-  }
-  .serv-info-m{display:flex;flex-direction:column;gap:3px;}
-  .serv-nombre-m{font-weight:500;font-size:14px;}
-  .serv-meta-m{font-size:12px;color:var(--muted);}
-  .serv-edit-cols{display:none;}
-
-  /* Agregar servicio */
-  .agregar-serv-form{grid-template-columns:1fr 1fr;}
-  .agregar-serv-form button{grid-column:1/-1;}
-
-  /* Horarios */
-  .horario-dia{grid-template-columns:100px 1fr;}
-  .horario-inputs input[type="time"]{width:95px;font-size:13px;padding:7px 8px;}
-
-  /* Bloqueos */
-  .bloqueo-form{grid-template-columns:1fr 1fr;}
-
-  /* Agenda */
-  .agenda-grid{grid-template-columns:repeat(3,1fr);}
-
-  /* Config */
-  .notif-item{flex-wrap:wrap;gap:10px;}
-
-  /* Modal */
-  .modal{padding:24px 18px;margin:12px;}
-  .modal-grid{grid-template-columns:1fr;}
-  .modal-grid .form-field.full{grid-column:1;}
-}
-@media(min-width:769px){
-  .bottom-nav{display:none !important;}
-  #masMenu{display:none !important;}
-}
-/* ── HORARIOS ── */
-.horarios-grid { display: flex; flex-direction: column; gap: 0; }
-.horario-dia {
-  display: grid; grid-template-columns: 110px 1fr auto;
-  align-items: center; gap: 16px; padding: 16px 0;
-  border-bottom: 1px solid rgba(122,107,95,0.08);
-}
-.horario-dia:last-child { border-bottom: none; }
-.dia-label { font-size: 13px; font-weight: 500; color: var(--dark); }
-.dia-label.inactivo { color: var(--muted); }
-.horario-inputs { display: flex; align-items: center; gap: 10px; }
-.horario-inputs input[type="time"] {
-  padding: 8px 12px; border: 1.5px solid var(--border); border-radius: 8px;
-  font-family: 'Jost', sans-serif; font-size: 14px; color: var(--dark);
-  background: #faf8f6; outline: none; transition: border-color 0.2s; width: 120px;
-}
-.horario-inputs input[type="time"]:focus    { border-color: var(--brown); }
-.horario-inputs input[type="time"]:disabled { background: #f0ebe5; color: #c8bbb0; }
-.horario-sep { font-size: 12px; color: var(--muted); }
-
-.notif-item{display:flex;align-items:center;justify-content:space-between;padding:18px 0;border-bottom:1px solid rgba(122,107,95,0.08);gap:20px;}
-.notif-nombre{font-size:15px;font-weight:500;color:var(--dark);margin-bottom:4px;}
-.notif-desc{font-size:12px;color:var(--muted);line-height:1.4;}
-.toggle{position:relative;display:inline-block;width:46px;height:26px;flex-shrink:0;}
-.toggle input{opacity:0;width:0;height:0;}
-.toggle-slider{position:absolute;cursor:pointer;inset:0;background:#ddd;border-radius:26px;transition:0.3s;}
-.toggle-slider::before{content:"";position:absolute;width:20px;height:20px;left:3px;bottom:3px;background:white;border-radius:50%;transition:0.3s;}
-.toggle input:checked + .toggle-slider{background:var(--green);}
-.toggle input:checked + .toggle-slider::before{transform:translateX(20px);}
-.preview-msg{}
-.preview-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
-.preview-bubble{background:#e8f5e9;border-radius:0 12px 12px 12px;padding:14px 16px;font-size:13px;line-height:1.6;color:#2d2d2d;max-width:360px;border:1px solid rgba(0,0,0,0.06);}
-
-.msg-editor {
-  width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;
-  font-family:'Jost',sans-serif;font-size:13px;color:var(--dark);background:#faf8f6;
-  outline:none;transition:border-color 0.2s;resize:vertical;line-height:1.6;
-}
-.msg-editor:focus{border-color:var(--brown);}
-.servicio-item {
-  display:grid;grid-template-columns:1fr 110px 110px 60px auto;
+  display:grid;grid-template-columns:1fr 110px 110px 60px 90px;
   align-items:center;gap:12px;padding:12px 0;
   border-bottom:1px solid rgba(122,107,95,0.08);
 }
 .servicio-item:last-child{border-bottom:none;}
+.serv-nombre{font-size:15px;color:var(--dark);}
+.serv-input{
+  padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;
+  font-family:'Jost',sans-serif;font-size:14px;color:var(--dark);
+  background:var(--white);outline:none;width:100%;transition:border-color 0.2s;
+}
+.serv-input:focus{border-color:var(--brown);}
+
+/* ── BUTTONS ── */
+.btn-primary{
+  padding:11px 24px;background:var(--brown);color:white;border:none;border-radius:9px;
+  font-family:'Jost',sans-serif;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;
+  cursor:pointer;transition:0.25s;font-weight:500;
+}
+.btn-primary:hover{background:var(--dark);}
+.btn-primary:disabled{background:#c8bbb0;cursor:not-allowed;}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:24px;right:24px;background:var(--dark);color:white;
+  padding:12px 20px;border-radius:10px;font-size:13px;opacity:0;
+  transition:all 0.3s ease;z-index:999;pointer-events:none;
+}
+.toast.show{opacity:1;}
+.toast.ok{background:var(--green);}
+.toast.err{background:var(--red);}
+
+/* ── TABLA RESERVAS ── */
+.reserva-header {
+  display:grid;
+  grid-template-columns: 80px 1fr 1fr 70px 130px 100px 160px;
+  gap:12px;padding:10px 20px;
+  font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);
+  background:var(--cream);border:1px solid var(--border);border-radius:12px 12px 0 0;
+  margin-bottom:0;
+}
+.reserva-item {
+  display:grid;
+  grid-template-columns: 80px 1fr 1fr 70px 130px 100px 160px;
+  align-items:center;gap:12px;
+  padding:14px 20px;
+  border-bottom:1px solid rgba(122,107,95,0.08);
+}
+.reserva-item:last-child{border-bottom:none;}
+.res-fecha{font-size:13px;color:var(--muted);white-space:nowrap;}
+.res-nombre{font-size:14px;font-weight:500;color:var(--dark);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.res-servicio{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.res-hora{font-size:14px;font-weight:500;color:var(--dark);white-space:nowrap;}
+.res-tel{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.res-actions{display:flex;gap:6px;flex-wrap:wrap;}
+
+
+
+/* ── AGREGAR SERVICIO FORM ── */
+.agregar-serv-form {
+  display: grid;
+  grid-template-columns: 1fr 110px 110px auto;
+  gap: 12px;
+  align-items: end;
+}
+
+/* ── HORARIOS base ── */
+.horarios-grid { display:flex;flex-direction:column;gap:0; }
+.horario-dia {
+  display:grid;grid-template-columns:110px 1fr;
+  align-items:center;gap:16px;padding:16px 0;
+  border-bottom:1px solid rgba(122,107,95,0.08);
+}
+.horario-dia:last-child{border-bottom:none;}
+.dia-label{font-size:13px;font-weight:500;color:var(--dark);}
+.dia-label.inactivo{color:var(--muted);}
+.horario-inputs{display:flex;align-items:center;gap:10px;}
+.horario-inputs input[type="time"]{
+  padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;
+  font-family:'Jost',sans-serif;font-size:14px;color:var(--dark);
+  background:#faf8f6;outline:none;transition:border-color 0.2s;width:120px;
+}
+.horario-inputs input[type="time"]:focus{border-color:var(--brown);}
+.horario-inputs input[type="time"]:disabled{background:#f0ebe5;color:#c8bbb0;}
+.horario-sep{font-size:12px;color:var(--muted);}
+
+/* ── AGREGAR SERVICIO ── */
+.agregar-serv-form{
+  display:grid;grid-template-columns:1fr 110px 110px auto;
+  gap:12px;align-items:end;
+}
 
 /* ── MODAL ── */
 .modal-overlay{
@@ -565,7 +253,7 @@ body{font-family:'Jost',sans-serif;background:#f7f2ed;color:var(--dark);min-heig
 .modal-overlay.open{display:flex;animation:fadeIn 0.2s ease;}
 .modal{
   background:var(--white);border-radius:18px;padding:36px;width:100%;max-width:500px;
-  box-shadow:0 30px 80px rgba(0,0,0,0.2);position:relative;
+  box-shadow:0 30px 80px rgba(0,0,0,0.2);position:relative;max-height:90vh;overflow-y:auto;
 }
 .modal-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;margin-bottom:4px;}
 .modal-sub{font-size:13px;color:var(--muted);margin-bottom:24px;}
@@ -583,40 +271,63 @@ body{font-family:'Jost',sans-serif;background:#f7f2ed;color:var(--dark);min-heig
   cursor:pointer;color:var(--muted);transition:0.2s;
 }
 .btn-ghost:hover{border-color:var(--brown);color:var(--brown);}
-@media(max-width:480px){.modal-grid{grid-template-columns:1fr;}}
+
+/* d-cell = solo desktop | m-cell = solo mobile */
+.m-cell{display:none;}
+
+/* ── MOBILE ── */
 @media(max-width:768px){
-  /* ── BOTTOM NAV ── */
-  .sidebar { display:none; }
-  .layout  { flex-direction:column; }
-  .main    { margin-left:0; padding:16px 16px 80px; }
+  .sidebar{display:none;}
+  .layout{flex-direction:column;}
+  .main{margin-left:0;padding:16px 16px 80px;overflow-x:hidden;}
+  body{overflow-x:hidden;}
 
-  .bottom-nav {
-    display:flex !important;
-    position:fixed; bottom:0; left:0; right:0; z-index:100;
-    background:var(--white); border-top:1px solid var(--border);
-    padding:6px 0 calc(6px + env(safe-area-inset-bottom));
-    justify-content:space-around;
+  .bottom-nav{
+    display:flex !important;position:fixed;bottom:0;left:0;right:0;z-index:100;
+    background:var(--white);border-top:1px solid var(--border);
+    padding:6px 0 calc(6px + env(safe-area-inset-bottom));justify-content:space-around;
   }
-  .bottom-nav-item {
-    display:flex; flex-direction:column; align-items:center; gap:3px;
-    padding:4px 8px; cursor:pointer; border-radius:10px;
-    transition:0.2s; color:var(--muted); font-size:9px;
-    letter-spacing:0.5px; text-transform:uppercase; min-width:44px;
+  .bottom-nav-item{
+    display:flex;flex-direction:column;align-items:center;gap:3px;
+    padding:4px 6px;cursor:pointer;border-radius:10px;transition:0.2s;
+    color:var(--muted);font-size:9px;letter-spacing:0.5px;
+    text-transform:uppercase;flex:1;max-width:80px;
   }
-  .bottom-nav-item .bnav-icon { font-size:20px; line-height:1; }
-  .bottom-nav-item.active     { color:var(--brown); }
-  .bottom-nav-item.active .bnav-icon { transform:scale(1.15); }
+  .bottom-nav-item .bnav-icon{font-size:20px;line-height:1;}
+  .bottom-nav-item.active{color:var(--brown);}
 
-  /* ── RESTO MOBILE ── */
-  .stats-row   { grid-template-columns:repeat(2,1fr); }
-  .reserva-item{ grid-template-columns:1fr auto; grid-template-rows:auto auto auto; }
-  .agenda-grid { grid-template-columns:repeat(3,1fr); }
-  .bloqueo-form{ grid-template-columns:1fr 1fr; }
-  .servicio-item{ grid-template-columns:1fr 90px 90px auto; }
-  .sidebar-brand .name { font-size:18px; }
+  .stats-row{grid-template-columns:repeat(2,1fr);}
+
+  /* d-cell oculto, m-cell visible */
+  .d-cell{display:none !important;}
+  .m-cell{display:block !important;}
+
+  /* Reservas */
+  .reserva-header{display:none;}
+  .reserva-item{display:block;padding:14px 16px;border-bottom:1px solid rgba(122,107,95,0.08);}
+  .reserva-item .m-cell{display:block !important;}
+
+  /* Servicios */
+  .servicio-item{display:flex;align-items:center;padding:14px 0;border-bottom:1px solid rgba(122,107,95,0.08);cursor:pointer;}
+  .servicio-item .m-cell{display:flex !important;}
+  .sena-row{display:none !important;}
+
+  .agregar-serv-form{grid-template-columns:1fr 1fr;}
+  .agregar-serv-form button{grid-column:1/-1;}
+  .horario-dia{grid-template-columns:100px 1fr;}
+  .horario-inputs{grid-column:1/-1;flex-wrap:wrap;}
+  .horario-inputs input[type="time"]{width:95px;font-size:13px;padding:7px 8px;}
+  .bloqueo-form{grid-template-columns:1fr 1fr;}
+  .agenda-grid{grid-template-columns:repeat(3,1fr);}
+  .notif-item{flex-wrap:wrap;gap:10px;}
+  .modal{padding:24px 18px;margin:12px;}
+  .modal-grid{grid-template-columns:1fr;}
+  .modal-grid .form-field.full{grid-column:1;}
 }
 @media(min-width:769px){
-  .bottom-nav { display:none !important; }
+  .bottom-nav{display:none !important;}
+  #masMenu{display:none !important;}
+  .m-cell{display:none !important;}
 }
 </style>
 </head>
@@ -774,20 +485,27 @@ body{font-family:'Jost',sans-serif;background:#f7f2ed;color:var(--dark);min-heig
       <!-- SERVICIOS -->
       <div class="page" id="page-servicios">
         <div class="page-title">Servicios y precios</div>
-        <div class="page-sub">Editá, agregá o eliminá servicios. Los cambios se guardan al hacer click en Guardar.</div>
+        <div class="page-sub">Editá, agregá o eliminá servicios.</div>
         <div class="card">
-          <div style="display:grid;grid-template-columns:1fr 110px 110px 80px auto;gap:12px;padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:4px;">
+          <!-- Header desktop -->
+          <div class="d-cell" style="display:grid;grid-template-columns:1fr 110px 110px 60px 90px;gap:12px;padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:4px;">
             <span style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)">Servicio</span>
             <span style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)">Precio ($)</span>
-            <span style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)">Duración (min)</span>
+            <span style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)">Duración</span>
             <span style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)">Activo</span>
             <span></span>
           </div>
           <div id="serviciosList"><div class="empty-state">Cargando...</div></div>
-          <!-- Nuevo servicio -->
+          <!-- Botón guardar todos (desktop) -->
+          <div class="d-cell" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+            <button id="btnGuardarTodos" class="btn-primary" style="width:auto;padding:10px 28px" onclick="guardarTodosServicios()">Guardar todos</button>
+          </div>
+          <!-- Agregar servicio -->
           <div style="border-top:1px solid var(--border);margin-top:16px;padding-top:16px;">
-            <div class="card-title">Agregar servicio</div>
-            <div class="agregar-serv-form">
+            <div class="card-title d-cell">Agregar servicio</div>
+            <!-- Mobile: botón que abre modal -->
+            <button class="m-cell btn-primary" style="display:flex;align-items:center;gap:8px;width:100%;justify-content:center;margin-bottom:0" onclick="abrirModalAgregarServicio()">+ Agregar servicio</button>
+            <div class="agregar-serv-form d-cell">
               <div class="form-field">
                 <label>Nombre</label>
                 <input type="text" id="nuevoNombre" class="serv-input" placeholder="Ej: Limpieza facial">
@@ -892,6 +610,21 @@ body{font-family:'Jost',sans-serif;background:#f7f2ed;color:var(--dark);min-heig
           <button class="btn-primary" style="margin-top:16px;width:auto;padding:10px 24px" onclick="guardarMensajes()">Guardar mensajes</button>
         </div>
 
+        <!-- PAGOS -->
+        <div class="card" style="margin-top:20px">
+          <div class="card-title">Datos de pago para señas</div>
+          <div class="notif-desc" style="margin-bottom:16px">El cliente ve estos datos al elegir cómo abonar la seña antes de confirmar su turno</div>
+          <div class="form-field" style="margin-bottom:16px">
+            <label>Datos para transferencia bancaria</label>
+            <textarea id="cfgTransfDatos" class="msg-editor" rows="3" placeholder="Ej: Banco República · Caja de Ahorro · 123456789&#10;IBAN: UY12345&#10;Alias: gardenia.cobros"></textarea>
+          </div>
+          <div class="form-field" style="margin-bottom:16px">
+            <label>Link de cobro de MercadoPago</label>
+            <input type="url" id="cfgMPLink" class="serv-input" placeholder="https://mpago.la/...">
+          </div>
+          <button class="btn-primary" style="width:auto;padding:10px 24px" onclick="guardarPagos()">Guardar datos de pago</button>
+        </div>
+
         <!-- BRANDING -->
         <div class="card" style="margin-top:20px">
           <div class="card-title">Identidad del negocio</div>
@@ -907,21 +640,6 @@ body{font-family:'Jost',sans-serif;background:#f7f2ed;color:var(--dark);min-heig
             </div>
           </div>
           <button class="btn-primary" style="margin-top:14px;width:auto;padding:10px 24px" onclick="guardarBranding()">Guardar identidad</button>
-        </div>
-
-        <!-- PAGOS -->
-        <div class="card" style="margin-top:20px">
-          <div class="card-title">Datos de pago para señas</div>
-          <div class="notif-desc" style="margin-bottom:16px">El cliente ve estos datos al elegir cómo abonar la seña antes de confirmar su turno</div>
-          <div class="form-field" style="margin-bottom:16px">
-            <label>Datos para transferencia bancaria</label>
-            <textarea id="cfgTransfDatos" class="msg-editor" rows="3" placeholder="Ej: Banco República · Caja de Ahorro · 123456789&#10;IBAN: UY12345&#10;Alias: gardenia.cobros"></textarea>
-          </div>
-          <div class="form-field" style="margin-bottom:16px">
-            <label>Link de cobro de MercadoPago</label>
-            <input type="url" id="cfgMPLink" class="serv-input" placeholder="https://mpago.la/...">
-          </div>
-          <button class="btn-primary" style="width:auto;padding:10px 24px" onclick="guardarPagos()">Guardar datos de pago</button>
         </div>
 
       </div><!-- /page-configuracion -->
@@ -945,16 +663,16 @@ body{font-family:'Jost',sans-serif;background:#f7f2ed;color:var(--dark);min-heig
 
   <!-- MÁS MENU (mobile) -->
   <div id="masMenu" style="display:none;position:fixed;bottom:65px;left:0;right:0;z-index:99;background:var(--white);border-top:1px solid var(--border);box-shadow:0 -4px 20px rgba(0,0,0,0.08)">
-    <div onclick="showPage('dashboard');toggleMasMenu()" style="display:flex;align-items:center;gap:14px;padding:16px 24px;cursor:pointer;border-bottom:1px solid rgba(122,107,95,0.06);font-size:14px">
+    <div onclick="showPage('dashboard');closeMasMenu()" style="display:flex;align-items:center;gap:14px;padding:16px 24px;cursor:pointer;border-bottom:1px solid rgba(122,107,95,0.06);font-size:14px">
       <span style="font-size:20px">◈</span> Resumen
     </div>
-    <div onclick="showPage('horarios');toggleMasMenu()" style="display:flex;align-items:center;gap:14px;padding:16px 24px;cursor:pointer;border-bottom:1px solid rgba(122,107,95,0.06);font-size:14px">
+    <div onclick="showPage('horarios');closeMasMenu()" style="display:flex;align-items:center;gap:14px;padding:16px 24px;cursor:pointer;border-bottom:1px solid rgba(122,107,95,0.06);font-size:14px">
       <span style="font-size:20px">🕐</span> Horarios
     </div>
-    <div onclick="showPage('bloqueos');toggleMasMenu()" style="display:flex;align-items:center;gap:14px;padding:16px 24px;cursor:pointer;border-bottom:1px solid rgba(122,107,95,0.06);font-size:14px">
+    <div onclick="showPage('bloqueos');closeMasMenu()" style="display:flex;align-items:center;gap:14px;padding:16px 24px;cursor:pointer;border-bottom:1px solid rgba(122,107,95,0.06);font-size:14px">
       <span style="font-size:20px">⊘</span> Bloqueos
     </div>
-    <div onclick="showPage('configuracion');toggleMasMenu()" style="display:flex;align-items:center;gap:14px;padding:16px 24px;cursor:pointer;border-bottom:1px solid rgba(122,107,95,0.06);font-size:14px">
+    <div onclick="showPage('configuracion');closeMasMenu()" style="display:flex;align-items:center;gap:14px;padding:16px 24px;cursor:pointer;border-bottom:1px solid rgba(122,107,95,0.06);font-size:14px">
       <span style="font-size:20px">⚙</span> Configuración
     </div>
     <div onclick="logout()" style="display:flex;align-items:center;gap:14px;padding:16px 24px;cursor:pointer;font-size:14px;color:#b05a5a">
@@ -1000,6 +718,32 @@ body{font-family:'Jost',sans-serif;background:#f7f2ed;color:var(--dark);min-heig
     <div class="modal-footer">
       <button class="btn-ghost" onclick="cerrarEditServicio()">Cancelar</button>
       <button class="btn-primary" style="flex:2" onclick="guardarEditServicio()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL AGREGAR SERVICIO (mobile) -->
+<div class="modal-overlay" id="modalAgregarServicio" onclick="if(event.target===this)cerrarModalAgregarServicio()">
+  <div class="modal" style="max-width:420px">
+    <button class="modal-close" onclick="cerrarModalAgregarServicio()">&#215;</button>
+    <div class="modal-title">Agregar servicio</div>
+    <div class="modal-grid">
+      <div class="form-field full">
+        <label>Nombre</label>
+        <input type="text" id="mnuevoNombre" class="serv-input" placeholder="Ej: Limpieza facial">
+      </div>
+      <div class="form-field">
+        <label>Precio ($)</label>
+        <input type="number" id="mnuevoPrecio" class="serv-input" placeholder="&#8212;" min="0">
+      </div>
+      <div class="form-field">
+        <label>Duraci&#243;n (min)</label>
+        <input type="number" id="mnuevoDuracion" class="serv-input" placeholder="&#8212;" min="0">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="cerrarModalAgregarServicio()">Cancelar</button>
+      <button class="btn-primary" style="flex:2" onclick="agregarServicioModal()">Agregar</button>
     </div>
   </div>
 </div>
@@ -1232,50 +976,38 @@ function reservaHTML(r) {
     extraBadge = `<span style="font-size:10px;background:#e8f5e9;color:var(--green);padding:2px 7px;border-radius:10px;margin-left:6px">💳 Pagada</span>`;
   }
 
-  const acciones = r.estado === 'pendiente'
-    ? `<div class="res-actions">
-        <button class="btn-sm btn-confirm" onclick="updateReserva('${r.id}','confirmada')">Confirmar</button>
-        <button class="btn-sm btn-cancel"  onclick="updateReserva('${r.id}','cancelada')">Cancelar</button>
-        ${r.pago_estado === 'pendiente_pago' ? `<button class="btn-sm" style="background:#e8f5e9;color:var(--green)" onclick="marcarPagado('${r.id}')">✓ Seña recibida</button>` : ''}
-       </div>`
-    : `<div class="res-actions">
-        <button class="btn-sm" style="background:#f0ebe5;color:var(--muted)" onclick="updateReserva('${r.id}','pendiente')">Reabrir</button>
-       </div>`;
+  const btnConfirmar = `<button class="btn-sm btn-confirm" onclick="event.stopPropagation();updateReserva('${r.id}','confirmada')">✓ Confirmar</button>`;
+  const btnCancelar  = `<button class="btn-sm btn-cancel"  onclick="event.stopPropagation();updateReserva('${r.id}','cancelada')">✕ Cancelar</button>`;
+  const btnReabrir   = `<button class="btn-sm" style="background:#f0ebe5;color:var(--muted)" onclick="event.stopPropagation();updateReserva('${r.id}','pendiente')">↩ Reabrir</button>`;
+  const btnSena      = r.pago_estado === 'pendiente_pago'
+    ? `<button class="btn-sm" style="background:#e8f5e9;color:var(--green)" onclick="event.stopPropagation();marcarPagado('${r.id}')">💳 Seña recibida</button>` : '';
 
-  // Vista desktop (tabla)
-  const desktop = `
-    <div class="res-fecha">${fechaStr}</div>
-    <div class="res-nombre" title="${r.cliente_nombre}">${r.cliente_nombre}${extraBadge}</div>
-    <div class="res-servicio" title="${r.servicio_nombre}">${r.servicio_nombre}</div>
-    <div class="res-hora">${hora} hs</div>
-    <div class="res-tel" title="${r.cliente_tel}">${r.cliente_tel}</div>
-    <span class="badge ${r.estado}">${r.estado}</span>
-    ${acciones}`;
-
-  // Vista mobile (card simple → toca para ver detalle)
-  const mobile = `
-    <div class="res-row-top">
-      <span class="res-nombre-m">${r.cliente_nombre}${extraBadge}</span>
-      <span class="badge ${r.estado}">${r.estado}</span>
-    </div>
-    <div class="res-servicio-m">${r.servicio_nombre}</div>
-    <div class="res-meta">
-      <span style="font-size:12px;color:var(--muted)">📅 ${fechaStr}</span>
-      ${r.fecha ? `<span style="font-size:12px;color:var(--muted)">🕐 ${hora} hs</span>` : ''}
-      <span style="font-size:12px;color:var(--muted)">📱 ${r.cliente_tel}</span>
-    </div>
-    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
-      ${r.estado === 'pendiente'
-        ? `<button class="btn-sm btn-confirm" onclick="event.stopPropagation();updateReserva('${r.id}','confirmada')">✓ Confirmar</button>
-           <button class="btn-sm btn-cancel"  onclick="event.stopPropagation();updateReserva('${r.id}','cancelada')">✕ Cancelar</button>
-           ${r.pago_estado === 'pendiente_pago' ? `<button class="btn-sm" style="background:#e8f5e9;color:var(--green)" onclick="event.stopPropagation();marcarPagado('${r.id}')">💳 Seña recibida</button>` : ''}`
-        : `<button class="btn-sm" style="background:#f0ebe5;color:var(--muted)" onclick="event.stopPropagation();updateReserva('${r.id}','pendiente')">↩ Reabrir</button>`
-      }
-    </div>`;
+  const botonesDesktop = r.estado === 'pendiente'
+    ? `${btnConfirmar}${btnCancelar}${btnSena}` : btnReabrir;
+  const botonesMobile = botonesDesktop; // mismos botones
 
   return `<div class="reserva-item" data-id="${r.id}">
-    ${desktop}
-    ${mobile}
+    <!-- desktop: 7 celdas en grid -->
+    <div class="res-fecha d-cell">${fechaStr}</div>
+    <div class="res-nombre d-cell">${r.cliente_nombre}${extraBadge}</div>
+    <div class="res-servicio d-cell">${r.servicio_nombre}</div>
+    <div class="res-hora d-cell">${hora} hs</div>
+    <div class="res-tel d-cell">${r.cliente_tel}</div>
+    <span class="badge ${r.estado} d-cell">${r.estado}</span>
+    <div class="res-actions d-cell">${botonesDesktop}</div>
+    <!-- mobile: card completa en una celda -->
+    <div class="m-cell" style="grid-column:1/-1">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <span style="font-weight:500;font-size:14px">${r.cliente_nombre}${extraBadge}</span>
+        <span class="badge ${r.estado}">${r.estado}</span>
+      </div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:4px">${r.servicio_nombre}</div>
+      <div style="display:flex;gap:12px;font-size:12px;color:var(--muted);margin-bottom:10px">
+        ${r.fecha ? `<span>📅 ${fechaStr} · ${hora} hs</span>` : ''}
+        <span>📱 ${r.cliente_tel}</span>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">${botonesMobile}</div>
+    </div>
   </div>`;
 }
 
@@ -1617,54 +1349,76 @@ async function loadServicios() {
     .from('servicios').select('*').eq('negocio_id', negocioId).order('nombre');
 
   const container = document.getElementById('serviciosList');
-  container.innerHTML = (data || []).map(s => {
-    const precioStr   = s.precio   ? `$${s.precio.toLocaleString('es-UY')}` : 'Sin precio';
-    const durStr      = s.duracion ? `${s.duracion} min` : 'Sin duración';
-    const estadoBadge = s.activo
-      ? `<span style="font-size:10px;background:#e8f5e9;color:var(--green);padding:2px 8px;border-radius:10px">Activo</span>`
-      : `<span style="font-size:10px;background:#f0ebe5;color:var(--muted);padding:2px 8px;border-radius:10px">Inactivo</span>`;
+  if (!data || data.length === 0) {
+    container.innerHTML = '<div class="empty-state">No hay servicios cargados</div>';
+    window._serviciosData = [];
+    return;
+  }
 
+  container.innerHTML = data.map(s => {
+    const precioStr = s.precio   ? `$${s.precio.toLocaleString('es-UY')}` : '—';
+    const durStr    = s.duracion ? `${s.duracion} min`                    : '—';
+    const badge = s.activo
+      ? `<span style="font-size:11px;background:#e8f5e9;color:var(--green);padding:2px 8px;border-radius:10px">Activo</span>`
+      : `<span style="font-size:11px;background:#f0ebe5;color:var(--muted);padding:2px 8px;border-radius:10px">Inactivo</span>`;
     return `
-    <!-- Fila desktop -->
-    <div class="servicio-item" id="sitem-${s.id}">
-      <div class="serv-nombre">${s.nombre}</div>
-      <input class="serv-input serv-edit-cols" type="number" placeholder="—" value="${s.precio ?? ''}" id="precio-${s.id}" min="0">
-      <input class="serv-input serv-edit-cols" type="number" placeholder="—" value="${s.duracion ?? ''}" id="dur-${s.id}" min="0">
-      <label class="toggle serv-edit-cols" title="${s.activo ? 'Activo' : 'Inactivo'}">
-        <input type="checkbox" ${s.activo ? 'checked' : ''} onchange="toggleServicio('${s.id}',this.checked)">
-        <span class="toggle-slider"></span>
-      </label>
-      <div class="serv-edit-cols" style="display:flex;gap:6px">
-        <button class="btn-sm btn-confirm" onclick="guardarServicio('${s.id}','${s.nombre}')">Guardar</button>
-        <button class="btn-sm btn-cancel"  onclick="eliminarServicio('${s.id}','${s.nombre}')">×</button>
-      </div>
-      <!-- Card mobile -->
-      <div class="serv-info-m" onclick="abrirEditServicio('${s.id}')">
-        <div class="serv-nombre-m">${s.nombre} ${estadoBadge}</div>
-        <div class="serv-meta-m">${precioStr} · ${durStr}${s.requiere_sena ? ' · 💳 Seña $'+s.monto_sena : ''}</div>
-      </div>
-      <button class="btn-sm" style="display:none" onclick="abrirEditServicio('${s.id}')">✎</button>
+    <div class="servicio-item d-cell">
+      <div style="font-size:14px;font-weight:500">${s.nombre}</div>
+      <input class="serv-input" type="number" placeholder="—" value="${s.precio ?? ''}" id="precio-${s.id}" min="0">
+      <input class="serv-input" type="number" placeholder="—" value="${s.duracion ?? ''}" id="dur-${s.id}" min="0">
+      <label class="toggle" style="margin:0 auto"><input type="checkbox" ${s.activo ? 'checked' : ''} id="activo-${s.id}"><span class="toggle-slider"></span></label>
+      <button class="btn-sm btn-cancel" onclick="eliminarServicio('${s.id}','${s.nombre}')">Eliminar</button>
     </div>
-    <!-- Fila seña desktop -->
-    <div class="serv-edit-cols" style="padding:0 0 12px 0;margin-bottom:8px;border-bottom:1px solid rgba(122,107,95,0.08);display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <div class="d-cell" style="padding:4px 0 10px;border-bottom:1px solid rgba(122,107,95,0.06);display:flex;align-items:center;gap:14px;flex-wrap:wrap">
       <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);cursor:pointer">
-        <input type="checkbox" id="sena-${s.id}" ${s.requiere_sena ? 'checked' : ''} onchange="toggleSena('${s.id}',this.checked)" style="width:16px;height:16px;accent-color:var(--brown)">
-        Requiere seña
+        <input type="checkbox" id="sena-${s.id}" ${s.requiere_sena ? 'checked' : ''} onchange="toggleSenaRow('${s.id}',this.checked)" style="width:15px;height:15px;accent-color:var(--brown)">
+        Requiere sena
       </label>
-      <div style="display:flex;align-items:center;gap:6px" id="senaAmountRow-${s.id}">
+      <div id="senaAmountRow-${s.id}" style="display:${s.requiere_sena ? 'flex' : 'none'};align-items:center;gap:8px">
         <span style="font-size:12px;color:var(--muted)">Monto $</span>
-        <input class="serv-input" type="number" id="sena-monto-${s.id}" value="${s.monto_sena ?? 0}" min="0" style="width:100px" placeholder="0">
-        <button class="btn-sm btn-confirm" onclick="guardarSena('${s.id}')">Guardar seña</button>
+        <input class="serv-input" type="number" id="sena-monto-${s.id}" value="${s.monto_sena ?? 0}" min="0" style="width:90px">
       </div>
+    </div>
+    <div class="m-cell" style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(122,107,95,0.08);cursor:pointer" onclick="abrirEditServicio('${s.id}')">
+      <div>
+        <div style="font-weight:500;font-size:14px;margin-bottom:3px">${s.nombre} ${badge}</div>
+        <div style="font-size:12px;color:var(--muted)">${precioStr} · ${durStr}${s.requiere_sena ? ' · Sena $'+s.monto_sena : ''}</div>
+      </div>
+      <span style="font-size:22px;color:var(--muted);padding-left:12px">›</span>
     </div>`;
   }).join('');
 
-  (data||[]).forEach(s => {
-    const row = document.getElementById(`senaAmountRow-${s.id}`);
-    if (row) row.style.display = s.requiere_sena ? 'flex' : 'none';
-  });
+  window._serviciosData = data;
+}
 
-  window._serviciosData = data || [];
+function toggleSenaRow(id, checked) {
+  document.getElementById(`senaAmountRow-${id}`).style.display = checked ? 'flex' : 'none';
+}
+
+async function guardarTodosServicios() {
+  const data = window._serviciosData || [];
+  if (!data.length) return;
+  const btn = document.getElementById('btnGuardarTodos');
+  btn.disabled = true; btn.textContent = 'Guardando...';
+  try {
+    for (const s of data) {
+      const precio    = document.getElementById(`precio-${s.id}`)?.value;
+      const duracion  = document.getElementById(`dur-${s.id}`)?.value;
+      const activo    = document.getElementById(`activo-${s.id}`)?.checked ?? s.activo;
+      const sena      = document.getElementById(`sena-${s.id}`)?.checked ?? s.requiere_sena;
+      const montoSena = Number(document.getElementById(`sena-monto-${s.id}`)?.value) || 0;
+      await sb.from('servicios').update({
+        precio: precio ? Number(precio) : null,
+        duracion: duracion ? Number(duracion) : null,
+        activo,
+        requiere_sena: sena,
+        monto_sena: sena ? montoSena : 0,
+      }).eq('id', s.id);
+    }
+    showToast('Todos los servicios guardados', 'ok');
+  } catch(e) { showToast('Error al guardar', 'err'); }
+  btn.disabled = false; btn.textContent = 'Guardar todos';
+  loadServicios();
 }
 
 function abrirEditServicio(id) {
@@ -1747,6 +1501,32 @@ async function eliminarServicio(id, nombre) {
   loadServicios();
 }
 
+
+function abrirModalAgregarServicio() {
+  document.getElementById('mnuevoNombre').value = '';
+  document.getElementById('mnuevoPrecio').value = '';
+  document.getElementById('mnuevoDuracion').value = '';
+  document.getElementById('modalAgregarServicio').classList.add('open');
+}
+function cerrarModalAgregarServicio() {
+  document.getElementById('modalAgregarServicio').classList.remove('open');
+}
+async function agregarServicioModal() {
+  const nombre   = document.getElementById('mnuevoNombre').value.trim();
+  const precio   = document.getElementById('mnuevoPrecio').value;
+  const duracion = document.getElementById('mnuevoDuracion').value;
+  if (!nombre) { showToast('Ingresá un nombre', 'err'); return; }
+  const { error } = await sb.from('servicios').insert({
+    negocio_id: negocioId, nombre,
+    precio:   precio   ? Number(precio)   : null,
+    duracion: duracion ? Number(duracion) : null,
+    activo: true,
+  });
+  if (error) { showToast('Error al agregar', 'err'); return; }
+  showToast('✓ Servicio agregado', 'ok');
+  cerrarModalAgregarServicio();
+  loadServicios();
+}
 async function agregarServicio() {
   const nombre   = document.getElementById('nuevoNombre').value.trim();
   const precio   = document.getElementById('nuevoPrecio').value;
@@ -1797,6 +1577,9 @@ function showPage(name) {
 function toggleMasMenu() {
   const menu = document.getElementById('masMenu');
   menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+}
+function closeMasMenu() {
+  document.getElementById('masMenu').style.display = 'none';
 }
 
 // ── MODAL RESERVA MANUAL ──
