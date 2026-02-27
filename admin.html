@@ -1379,8 +1379,8 @@ async function loadServicios() {
         <input class="serv-input" type="number" id="sena-monto-${s.id}" value="${s.monto_sena ?? 0}" min="0" style="width:90px">
       </div>
     </div>
-    <div class="m-cell" style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(122,107,95,0.08);cursor:pointer" onclick="abrirEditServicio('${s.id}')">
-      <div>
+    <div class="m-cell" style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(122,107,95,0.08);cursor:pointer;gap:8px" onclick="abrirEditServicio('${s.id}')">
+      <div style="flex:1">
         <div style="font-weight:500;font-size:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">${s.nombre} ${badge}</div>
         <div style="font-size:12px;color:var(--muted)">${precioStr} · ${durStr}${s.requiere_sena ? ' · Sena $'+s.monto_sena : ''}</div>
       </div>
