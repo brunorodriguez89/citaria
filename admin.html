@@ -273,6 +273,7 @@ body{font-family:'Jost',sans-serif;background:#f7f2ed;color:var(--dark);min-heig
 .btn-ghost:hover{border-color:var(--brown);color:var(--brown);}
 
 /* d-cell = solo desktop | m-cell = solo mobile */
+.serv-card-mobile{display:none !important;}
 .m-cell{display:none;}
 
 /* ── MOBILE ── */
@@ -309,6 +310,7 @@ body{font-family:'Jost',sans-serif;background:#f7f2ed;color:var(--dark);min-heig
 
   /* Servicios */
   .servicio-item{display:flex;align-items:center;padding:14px 0;border-bottom:1px solid rgba(122,107,95,0.08);cursor:pointer;}
+  .serv-card-mobile{display:flex !important;}
   .servicio-item .m-cell{display:flex !important;}
   .sena-row{display:none !important;}
 
@@ -1379,7 +1381,7 @@ async function loadServicios() {
         <input class="serv-input" type="number" id="sena-monto-${s.id}" value="${s.monto_sena ?? 0}" min="0" style="width:90px">
       </div>
     </div>
-    <div class="m-cell" style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(122,107,95,0.08);cursor:pointer;gap:8px" onclick="abrirEditServicio('${s.id}')">
+    <div class="serv-card-mobile" style="align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(122,107,95,0.08);cursor:pointer;gap:8px" onclick="abrirEditServicio('${s.id}')">
       <div style="flex:1">
         <div style="font-weight:500;font-size:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">${s.nombre} ${badge}</div>
         <div style="font-size:12px;color:var(--muted)">${precioStr} · ${durStr}${s.requiere_sena ? ' · Sena $'+s.monto_sena : ''}</div>
