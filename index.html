@@ -612,14 +612,15 @@ function fillResumen() {
   const monthNames = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   const days = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
 
+  const telRaw       = document.getElementById('inputTel').value.trim();
   state.nombre       = document.getElementById('inputNombre').value.trim();
-  state.tel          = normalizarTel(document.getElementById('inputTel').value.trim());
+  state.tel          = normalizarTel(telRaw);
   state.email        = document.getElementById('inputEmail').value.trim();
   state.destinatario = document.getElementById('inputDestinatario').value.trim();
 
   document.getElementById('resServicio').textContent = state.service;
   document.getElementById('resNombre').textContent   = state.nombre;
-  document.getElementById('resContacto').textContent = state.email ? state.tel + ' · ' + state.email : state.tel;
+  document.getElementById('resContacto').textContent = state.email ? telRaw + ' · ' + state.email : telRaw;
 
   // Fecha/hora solo para reservas normales
   const fechaRow    = document.getElementById('resFechaRow');
